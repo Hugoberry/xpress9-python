@@ -5,6 +5,7 @@ from Cython.Build import cythonize
 
 # Detect platform
 is_macos = sys.platform == "darwin"
+is_windows = sys.platform == "win32"
 
 # Common sources
 sources = [
@@ -19,17 +20,13 @@ sources = [
 extra_compile_args = ["-O3"]
 extra_link_args = []
 
-if not is_macos:
-    # Enable OpenMP for Linux & Windows
+if not is_macos and not is_windows:
+    # Enable OpenMP for Linux only
     extra_compile_args.append("-fopenmp")
     extra_link_args.append("-fopenmp")
-else:
-    # macOS: Use Homebrew's libomp
-    omp_include_path = "/opt/homebrew/opt/libomp/include"
-    omp_lib_path = "/opt/homebrew/opt/libomp/lib"
-    
-    extra_compile_args.extend(["-Xpreprocessor", "-fopenmp", f"-I{omp_include_path}"])
-    extra_link_args.extend(["-lomp", f"-L{omp_lib_path}"])
+elif is_windows:
+    # Enable OpenMP for MSVC
+    extra_compile_args.append("/openmp")
 
 # Define the extension
 xpress9_module = Extension(
