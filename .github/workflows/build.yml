@@ -30,6 +30,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install setuptools wheel cython build
 
+      - name: Install OpenMP for macOS
+        if: matrix.os == 'macos-latest'
+        run: brew install libomp
+
       # Special handling for macOS universal2 build
       - name: Build universal2 wheel for macOS
         if: matrix.os == 'macos-latest'
