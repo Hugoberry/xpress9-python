@@ -27,6 +27,7 @@ if not is_macos and not is_windows:
 elif is_windows:
     # Enable OpenMP for MSVC
     extra_compile_args.append("/openmp")
+    extra_compile_args.append("/DBUILD_STATIC")
 
 # Define the extension
 xpress9_module = Extension(

@@ -13,16 +13,21 @@ typedef void VOID;
 #if defined(_MSC_VER)
     #ifdef XPRESS9DLL_EXPORT
         #define XPRESS9DLL_API __declspec(dllexport)
+    #elif defined(BUILD_STATIC)  // Add this check for static builds
+        #define XPRESS9DLL_API
     #else
         #define XPRESS9DLL_API __declspec(dllimport)
     #endif
 #else
     #ifdef XPRESS9DLL_EXPORT
         #define XPRESS9DLL_API __attribute__((visibility("default")))
+    #elif defined(BUILD_STATIC)
+        #define XPRESS9DLL_API
     #else
         #define XPRESS9DLL_API
     #endif
 #endif
+
 
 // Define a context structure to hold decoder instance
 typedef struct {
