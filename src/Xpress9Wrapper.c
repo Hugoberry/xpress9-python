@@ -1,4 +1,4 @@
-#include "Xpress9DLL.h"
+#include "Xpress9Wrapper.h"
 #include <stdio.h>
 
 // Memory management callbacks

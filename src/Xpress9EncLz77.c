@@ -2,6 +2,12 @@
 // Licensed under the MIT License.
 #include "Xpress9Internal.h"
 
+#if defined(__GNUC__) || defined(__clang__)
+    // Only include this header for GCC or Clang
+    #include <x86intrin.h>
+    // No need to redefine __rdtsc as it will be available from the included header
+#endif
+
 #pragma warning (push)
 #pragma warning (disable: 4668) // intrin.h(82) : '_M_IX86' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
 #pragma warning (disable: 4820) // malloc.h(66) : '_heapinfo' : '4' bytes padding added after data member '_useflag'
@@ -292,11 +298,16 @@
     STATE.m_HuffmanStat.m_uShortSymbolCount[_uSymbol] += 1;                                 \
 } while (0)
 
+#ifdef _MSC_VER  // Microsoft's Visual Studio compiler
+#define ALIGNAS_64 __declspec(align(64))
+#else  // GCC, Clang, and others
+#define ALIGNAS_64 __attribute__((aligned(64)))
+#endif
 
 
 #ifndef XRPESS9_LOOKUP_HAVE_MAX_OFFSET_BY_LENGTH
 #define XRPESS9_LOOKUP_HAVE_MAX_OFFSET_BY_LENGTH 6
-__declspec(align(64))
+ALIGNAS_64
 static
 xint
 s_iMaxOffsetByLength[XRPESS9_LOOKUP_HAVE_MAX_OFFSET_BY_LENGTH] =

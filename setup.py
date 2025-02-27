@@ -10,7 +10,7 @@ is_windows = sys.platform == "win32"
 # Common sources
 sources = [
     "xpress9.pyx",
-    "src/Xpress9DLL.c",
+    "src/Xpress9Wrapper.c",
     "src/Xpress9DecLz77.c",
     "src/Xpress9EncLz77.c",
     "src/Xpress9DecHuffman.c",

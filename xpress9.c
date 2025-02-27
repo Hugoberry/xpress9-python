@@ -4,7 +4,7 @@
 {
     "distutils": {
         "depends": [
-            "include/Xpress9DLL.h"
+            "include/Xpress9Wrapper.h"
         ],
         "extra_compile_args": [
             "-O3",
@@ -20,7 +20,7 @@
         "name": "xpress9",
         "sources": [
             "xpress9.pyx",
-            "src/Xpress9DLL.c",
+            "src/Xpress9Wrapper.c",
             "src/Xpress9DecLz77.c",
             "src/Xpress9EncLz77.c",
             "src/Xpress9DecHuffman.c",
@@ -1251,7 +1251,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #define __PYX_HAVE__xpress9
 #define __PYX_HAVE_API__xpress9
 /* Early includes */
-#include "Xpress9DLL.h"
+#include "Xpress9Wrapper.h"
 #include <string.h>
 #include <stdlib.h>
 #ifdef _OPENMP

@@ -1,5 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+#ifdef _MSC_VER
+  #define UNALIGNED __unaligned
+#else
+  #define UNALIGNED
+#endif
+
 #if LZ77_MIN_PTR_MATCH_LENGTH == 4 && XPRESS9_USE_SSE2 && defined (Xpress9Lz77EncInsert_SSE2)
 
 static
@@ -31,7 +37,8 @@ Xpress9Lz77EncInsert_SSE2 (
 
         while (uPosition < uLastPosition && (((uxint) pData) & 15) != 0)
         {
-            uHashValue = * (__unaligned UInt32 *) pData;
+            // uHashValue = * (__unaligned UInt32 *) pData;
+            uHashValue = * (UNALIGNED UInt32 *) pData;
 
             uHashValue = (uHashValue ^ 0xDEADBEEFu) + (uHashValue >> 5);
             uHashValue ^= uHashValue >> 11;
@@ -153,7 +160,8 @@ Xpress9Lz77EncInsert_SSE2 (
 
         while (uPosition < uLastPosition)
         {
-            uHashValue = * (__unaligned UInt32 *) pData;
+            // uHashValue = * (__unaligned UInt32 *) pData;
+            uHashValue = * (UNALIGNED UInt32 *) pData;
 
             uHashValue = (uHashValue ^ 0xDEADBEEFu) + (uHashValue >> 5);
             uHashValue ^= uHashValue >> 11;
@@ -210,7 +218,8 @@ Xpress9Lz77EncInsert (
         while (uPosition < uLastPosition)
         {
 #if LZ77_MIN_PTR_MATCH_LENGTH == 4
-            uHashValue = * (__unaligned UInt32 *) pData;
+            // uHashValue = * (__unaligned UInt32 *) pData;
+            uHashValue = * (UNALIGNED UInt32 *) pData;
             uHashValue = (uHashValue ^ 0xDEADBEEFu) + (uHashValue >> 5);
             uHashValue ^= uHashValue >> 11;
 #else

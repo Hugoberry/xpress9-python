@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-__declspec(align(4096))
+#ifdef _MSC_VER  // Microsoft's Visual Studio compiler
+#define ALIGNAS_4096 __declspec(align(4096))
+#else  // GCC, Clang, and others
+#define ALIGNAS_4096 __attribute__((aligned(4096)))
+#endif
+ALIGNAS_4096
 static
 LZ77_INDEX
 ZobristTable[256][4] =

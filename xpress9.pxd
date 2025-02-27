@@ -1,6 +1,6 @@
 # xpress9.pxd
 
-cdef extern from "Xpress9DLL.h":
+cdef extern from "Xpress9Wrapper.h":
     ctypedef void* XPRESS9_CONTEXT
     ctypedef unsigned int UINT
     ctypedef unsigned char BYTE
