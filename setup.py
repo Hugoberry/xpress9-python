@@ -43,6 +43,7 @@ xpress9_module = Extension(
 # Setup
 setup(
     name="xpress9",
+    version="0.3.5",
     ext_modules=cythonize([xpress9_module]),
     zip_safe=False,
 )
