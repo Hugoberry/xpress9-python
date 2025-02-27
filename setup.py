@@ -12,7 +12,9 @@ sources = [
     "xpress9.pyx",
     "src/Xpress9DLL.c",
     "src/Xpress9DecLz77.c",
+    "src/Xpress9EncLz77.c",
     "src/Xpress9DecHuffman.c",
+    "src/Xpress9EncHuffman.c",
     "src/Xpress9Misc.c",
 ]
 
