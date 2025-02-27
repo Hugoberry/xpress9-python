@@ -1,6 +1,6 @@
-# Xpress9
+# Xpress9-python
 
-Xpress9 is a lightweight wrapper for the Xpress9 compression library by Microsoft. This project provides a C extension along with a Cython wrapper, enabling efficient compression and decompression in Python.
+Xpress9-python is a lightweight wrapper for the Xpress9 compression library by Microsoft. This project provides a C extension along with a Cython wrapper, enabling efficient compression and decompression in Python.
 
 ## Features
 
