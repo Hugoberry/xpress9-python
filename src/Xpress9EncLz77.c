@@ -2,10 +2,37 @@
 // Licensed under the MIT License.
 #include "Xpress9Internal.h"
 
-#if defined(__GNUC__) || defined(__clang__)
-    // Only include this header for GCC or Clang
-    #include <x86intrin.h>
-    // No need to redefine __rdtsc as it will be available from the included header
+#if (defined(__GNUC__) || defined(__clang__))
+    #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+        // x86/x64 architecture
+        #include <x86intrin.h>
+        // __rdtsc available from included header
+    #elif defined(__arm__) || defined(__aarch64__) || defined(__arm64__)
+        // ARM architecture (including Apple Silicon)
+        #include <arm_neon.h>
+        
+        // Define alternative for __rdtsc as it's commonly used for timing
+        #if defined(__APPLE__)
+            #include <mach/mach_time.h>
+            static inline uint64_t __rdtsc(void) {
+                return mach_absolute_time();
+            }
+        #else
+            // For other ARM platforms
+            #include <time.h>
+            static inline uint64_t __rdtsc(void) {
+                struct timespec ts;
+                clock_gettime(CLOCK_MONOTONIC, &ts);
+                return (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
+            }
+        #endif
+    #endif
+#elif defined(_MSC_VER)
+    // Microsoft Visual C++ compiler
+    #if defined(_M_X64) || defined(_M_IX86)
+        #include <intrin.h>
+        // __rdtsc available from included header
+    #endif
 #endif
 
 #pragma warning (push)
