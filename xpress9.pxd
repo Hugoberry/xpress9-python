@@ -1,7 +1,9 @@
 # xpress9.pxd
 
 cdef extern from "Xpress9Wrapper.h":
-    ctypedef void* XPRESS9_CONTEXT
+    ctypedef struct XPRESS9_CONTEXT:
+        void* decoder
+        void* encoder
     ctypedef unsigned int UINT
     ctypedef unsigned char BYTE
     ctypedef int INT
