@@ -86,9 +86,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --find-links dist xpress9
 
-      - name: Test import
+      - name: Run end-to-end test
         run: |
-          python -c "from xpress9 import Xpress9; x = Xpress9(); x.initialize()"
+          python e2e_test.py
 
   # Build source distribution
   build_sdist:
