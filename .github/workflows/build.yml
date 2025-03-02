@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -45,17 +45,34 @@ jobs:
           CIBW_ARCHS_MACOS: "universal2"
           MACOSX_DEPLOYMENT_TARGET: "11.0"
 
-      # Build for Windows and Linux
-      - name: Build wheel for Windows/Linux
-        if: matrix.os != 'macos-latest'
+      # Use cibuildwheel for Linux to generate manylinux wheels
+      - name: Build manylinux wheels for Linux
+        if: matrix.os == 'ubuntu-latest'
+        uses: pypa/cibuildwheel@v2.16.2
+        env:
+          CIBW_BUILD: cp${{ matrix.python-version == '3.10' && '310' || matrix.python-version == '3.11' && '311' || matrix.python-version == '3.12' && '312' || matrix.python-version == '3.13' && '313' || matrix.python-version == '3.8' && '38' || '39' }}-*
+          CIBW_ARCHS: auto
+
+      # Build for Windows
+      - name: Build wheel for Windows
+        if: matrix.os == 'windows-latest'
         run: |
           python -m build --wheel
 
-      - name: Store built wheels
+      # Store wheels - Note the different path for Linux wheels
+      - name: Store built wheels (non-Linux)
+        if: matrix.os != 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}-${{ matrix.python-version }}
           path: dist/*.whl
+
+      - name: Store built wheels (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}-${{ matrix.python-version }}
+          path: wheelhouse/*.whl
 
   # Test the wheels
   test_wheels:
@@ -65,7 +82,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -142,3 +159,4 @@ jobs:
         with:
           packages-dir: dist/
           skip-existing: true
+          verbose: true
