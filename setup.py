@@ -6,6 +6,7 @@ from Cython.Build import cythonize
 # Detect platform
 is_macos = sys.platform == "darwin"
 is_windows = sys.platform == "win32"
+is_linux = not is_macos and not is_windows
 
 # Common sources
 sources = [
@@ -18,18 +19,28 @@ sources = [
     "src/Xpress9Misc.c",
 ]
 
+# Default optimization for all platforms
+if is_linux:
+    # Linux gets O2 for stability
+    optimization_flag = "-O2"
+else:
+    # Windows and macOS get O3 for performance
+    optimization_flag = "-O3" if not is_windows else "/O2"
+
 # Compilation flags
-extra_compile_args = ["-O3"]
+extra_compile_args = [optimization_flag]
 extra_link_args = []
 
-if not is_macos and not is_windows:
-    # Enable OpenMP for Linux only
-    extra_compile_args.append("-fopenmp")
+if is_linux:
+    # Linux-specific flags
+    extra_compile_args.extend(["-fopenmp", "-fPIC"])
     extra_link_args.append("-fopenmp")
 elif is_windows:
-    # Enable OpenMP for MSVC
-    extra_compile_args.append("/openmp")
-    extra_compile_args.append("/DBUILD_STATIC")
+    # Windows-specific flags
+    extra_compile_args.extend(["/openmp", "/DBUILD_STATIC"])
+elif is_macos:
+    # macOS-specific flags if needed
+    pass
 
 # Define the extension
 xpress9_module = Extension(

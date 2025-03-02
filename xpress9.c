@@ -7,8 +7,9 @@
             "include/Xpress9Wrapper.h"
         ],
         "extra_compile_args": [
-            "-O3",
-            "-fopenmp"
+            "-O2",
+            "-fopenmp",
+            "-fPIC"
         ],
         "extra_link_args": [
             "-fopenmp"
