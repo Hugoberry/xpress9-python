@@ -7,8 +7,8 @@ import sys
 from xpress9 import Xpress9
 
 # Step 2: Define the input and output file paths
-input_file = "metadata.sqlitedb"  # Change this to your input file path
-output_file = "out.bin"          # Change this to your output file path
+input_file = "metadata.sqlitedb" 
+output_file = "out.bin" 
 
 # Step 3: Validate that the input file exists
 if not os.path.exists(input_file):

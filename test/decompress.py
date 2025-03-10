@@ -8,8 +8,9 @@ import hashlib
 from xpress9 import Xpress9
 
 # Step 2: Define the file paths
-compressed_file = "out.bin"            # The compressed file
-original_file = "temp_proper.db"    # The original file for validation
+# compressed_file = "desired_compression_metadata.sqlitedb"
+compressed_file = "out.bin"
+original_file = "metadata.sqlitedb"    # The original file for validation
 decompressed_file = "metadata_restored.sqlitedb"  # Where to save the decompressed file
 
 # Step 3: Validate that the compressed file exists
