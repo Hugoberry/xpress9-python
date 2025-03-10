@@ -14,7 +14,7 @@ typedef void VOID;
 #if defined(_MSC_VER)
     #ifdef XPRESS9DLL_EXPORT
         #define XPRESS9DLL_API __declspec(dllexport)
-    #elif defined(BUILD_STATIC)  // Add this check for static builds
+    #elif defined(BUILD_STATIC)  // Check for static builds
         #define XPRESS9DLL_API    
     #else
         #define XPRESS9DLL_API __declspec(dllimport)
