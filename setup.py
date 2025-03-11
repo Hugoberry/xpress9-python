@@ -22,6 +22,8 @@ sources = [
     "src/Xpress9DecHuffman.c",
     "src/Xpress9EncHuffman.c",
     "src/Xpress9Misc.c",
+    "src/xencode.c",
+    "src/xdecode.c"
 ]
 
 # Default optimization for all platforms

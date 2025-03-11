@@ -26,7 +26,9 @@
             "src/Xpress9EncLz77.c",
             "src/Xpress9DecHuffman.c",
             "src/Xpress9EncHuffman.c",
-            "src/Xpress9Misc.c"
+            "src/Xpress9Misc.c",
+            "src/xencode.c",
+            "src/xdecode.c"
         ]
     },
     "module_name": "xpress9"
@@ -1527,15 +1529,16 @@ static const char *__pyx_f[] = {
 struct __pyx_obj_7xpress9_Xpress9;
 
 /* "xpress9.pyx":8
- * from xpress9 cimport XPRESS9_CONTEXT, Initialize, Terminate, Decompress, Compress, BYTE, UINT, INT
+ * from xpress9 cimport XPRESS_CONTEXT, Initialize, Initialize_Default, Terminate, Decompress, Compress, BYTE, UINT, INT, BOOL
  * 
  * cdef class Xpress9:             # <<<<<<<<<<<<<<
- *     """ Python Wrapper for Xpress9 C Library """
+ *     """ Python Wrapper for Xpress9 C Library with compression level support """
  * 
  */
 struct __pyx_obj_7xpress9_Xpress9 {
   PyObject_HEAD
-  XPRESS9_CONTEXT *context;
+  XPRESS_CONTEXT *context;
+  int _compression_level;
 };
 
 /* #### Code section: utility_code_proto ### */
@@ -1748,23 +1751,6 @@ static CYTHON_INLINE int __Pyx_PyUnicode_Equals(PyObject* s1, PyObject* s2, int 
 #define __Pyx_ArgsSlice_FASTCALL(args, start, stop) PyTuple_GetSlice(args, start, stop)
 #endif
 
-/* RaiseArgTupleInvalid.proto */
-static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
-    Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
-
-/* KeywordStringCheck.proto */
-static int __Pyx_CheckKeywordStrings(PyObject *kw, const char* function_name, int kw_allowed);
-
-/* PyObjectCall.proto */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
-#else
-#define __Pyx_PyObject_Call(func, arg, kw) PyObject_Call(func, arg, kw)
-#endif
-
-/* RaiseException.proto */
-static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause);
-
 /* RaiseDoubleKeywords.proto */
 static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
 
@@ -1774,11 +1760,9 @@ static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject *const *kwvalues
     PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args,
     const char* function_name);
 
-/* ArgTypeTest.proto */
-#define __Pyx_ArgTypeTest(obj, type, none_allowed, name, exact)\
-    ((likely(__Pyx_IS_TYPE(obj, type) | (none_allowed && (obj == Py_None)))) ? 1 :\
-        __Pyx__ArgTypeTest(obj, type, name, exact))
-static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact);
+/* RaiseArgTupleInvalid.proto */
+static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
+    Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
 
 /* GCCDiagnostics.proto */
 #if !defined(__INTEL_COMPILER) && defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
@@ -1791,28 +1775,6 @@ static PyObject* __Pyx_PyUnicode_BuildFromAscii(Py_ssize_t ulength, char* chars,
 
 /* CIntToPyUnicode.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyUnicode_From_int(int value, Py_ssize_t width, char padding_char, char format_char);
-
-/* PyObjectFormatSimple.proto */
-#if CYTHON_COMPILING_IN_PYPY
-    #define __Pyx_PyObject_FormatSimple(s, f) (\
-        likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
-        PyObject_Format(s, f))
-#elif PY_MAJOR_VERSION < 3
-    #define __Pyx_PyObject_FormatSimple(s, f) (\
-        likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
-        likely(PyString_CheckExact(s)) ? PyUnicode_FromEncodedObject(s, NULL, "strict") :\
-        PyObject_Format(s, f))
-#elif CYTHON_USE_TYPE_SLOTS
-    #define __Pyx_PyObject_FormatSimple(s, f) (\
-        likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
-        likely(PyLong_CheckExact(s)) ? PyLong_Type.tp_repr(s) :\
-        likely(PyFloat_CheckExact(s)) ? PyFloat_Type.tp_repr(s) :\
-        PyObject_Format(s, f))
-#else
-    #define __Pyx_PyObject_FormatSimple(s, f) (\
-        likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
-        PyObject_Format(s, f))
-#endif
 
 /* JoinPyUnicode.proto */
 static PyObject* __Pyx_PyUnicode_Join(PyObject* value_tuple, Py_ssize_t value_count, Py_ssize_t result_ulength,
@@ -1853,6 +1815,13 @@ static PyObject *__Pyx_PyFunction_FastCallDict(PyObject *func, PyObject **args, 
 #endif
 #endif
 
+/* PyObjectCall.proto */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
+#else
+#define __Pyx_PyObject_Call(func, arg, kw) PyObject_Call(func, arg, kw)
+#endif
+
 /* PyObjectCallMethO.proto */
 #if CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg);
@@ -1864,6 +1833,40 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_FastCallDict(PyObject *func, PyObj
 
 /* PyObjectCallOneArg.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
+
+/* RaiseException.proto */
+static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause);
+
+/* ArgTypeTest.proto */
+#define __Pyx_ArgTypeTest(obj, type, none_allowed, name, exact)\
+    ((likely(__Pyx_IS_TYPE(obj, type) | (none_allowed && (obj == Py_None)))) ? 1 :\
+        __Pyx__ArgTypeTest(obj, type, name, exact))
+static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact);
+
+/* PyObjectFormatSimple.proto */
+#if CYTHON_COMPILING_IN_PYPY
+    #define __Pyx_PyObject_FormatSimple(s, f) (\
+        likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
+        PyObject_Format(s, f))
+#elif PY_MAJOR_VERSION < 3
+    #define __Pyx_PyObject_FormatSimple(s, f) (\
+        likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
+        likely(PyString_CheckExact(s)) ? PyUnicode_FromEncodedObject(s, NULL, "strict") :\
+        PyObject_Format(s, f))
+#elif CYTHON_USE_TYPE_SLOTS
+    #define __Pyx_PyObject_FormatSimple(s, f) (\
+        likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
+        likely(PyLong_CheckExact(s)) ? PyLong_Type.tp_repr(s) :\
+        likely(PyFloat_CheckExact(s)) ? PyFloat_Type.tp_repr(s) :\
+        PyObject_Format(s, f))
+#else
+    #define __Pyx_PyObject_FormatSimple(s, f) (\
+        likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
+        PyObject_Format(s, f))
+#endif
+
+/* KeywordStringCheck.proto */
+static int __Pyx_CheckKeywordStrings(PyObject *kw, const char* function_name, int kw_allowed);
 
 /* IncludeStructmemberH.proto */
 #include <structmember.h>
@@ -2107,6 +2110,9 @@ static void __Pyx_AddTraceback(const char *funcname, int c_line,
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
 
 /* CIntToPy.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
+
+/* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_UINT(UINT value);
 
 /* FormatTypeName.proto */
@@ -2171,17 +2177,21 @@ static PyObject *__pyx_builtin_MemoryError;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_TypeError;
 /* #### Code section: string_decls ### */
+static const char __pyx_k_[] = ".";
 static const char __pyx_k_gc[] = "gc";
-static const char __pyx_k__12[] = "?";
+static const char __pyx_k__14[] = "?";
 static const char __pyx_k_got[] = ", got ";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_self[] = "self";
 static const char __pyx_k_test[] = "__test__";
+static const char __pyx_k_bytes[] = " bytes";
 static const char __pyx_k_enable[] = "enable";
 static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_Xpress9[] = "Xpress9";
+static const char __pyx_k_decoder[] = "decoder";
 static const char __pyx_k_disable[] = "disable";
+static const char __pyx_k_encoder[] = "encoder";
 static const char __pyx_k_xpress9[] = "xpress9";
 static const char __pyx_k_compress[] = "compress";
 static const char __pyx_k_getstate[] = "__getstate__";
@@ -2199,12 +2209,12 @@ static const char __pyx_k_stringsource[] = "<stringsource>";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
 static const char __pyx_k_compressed_ptr[] = "compressed_ptr";
 static const char __pyx_k_compressed_data[] = "compressed_data";
-static const char __pyx_k_compressed_size[] = ", compressed size ";
+static const char __pyx_k_compressed_size[] = "compressed_size";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_Xpress9_compress[] = "Xpress9.compress";
 static const char __pyx_k_decompressed_ptr[] = "decompressed_ptr";
 static const char __pyx_k_uncompressed_ptr[] = "uncompressed_ptr";
-static const char __pyx_k_compressed_size_2[] = "compressed_size";
+static const char __pyx_k_compression_level[] = "compression_level";
 static const char __pyx_k_decompressed_data[] = "decompressed_data";
 static const char __pyx_k_decompressed_size[] = "decompressed_size";
 static const char __pyx_k_uncompressed_data[] = "uncompressed_data";
@@ -2214,16 +2224,18 @@ static const char __pyx_k_asyncio_coroutines[] = "asyncio.coroutines";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_max_compressed_size[] = "max_compressed_size";
 static const char __pyx_k_Xpress9___reduce_cython[] = "Xpress9.__reduce_cython__";
+static const char __pyx_k_Decompression_failed_Got[] = "Decompression failed: Got ";
 static const char __pyx_k_Xpress9___setstate_cython[] = "Xpress9.__setstate_cython__";
-static const char __pyx_k_Failed_to_initialize_Xpress9[] = "Failed to initialize Xpress9.";
-static const char __pyx_k_Decompression_failed_Expected[] = "Decompression failed: Expected ";
-static const char __pyx_k_Compression_failed_or_not_effect[] = "Compression failed or not effective: uncompressed size ";
+static const char __pyx_k_Compression_failed_buffer_may_be[] = "Compression failed: buffer may be too small or internal error occurred";
+static const char __pyx_k_Decompression_size_mismatch_Expe[] = "Decompression size mismatch: Expected ";
 static const char __pyx_k_Failed_to_allocate_output_buffer[] = "Failed to allocate output buffer.";
+static const char __pyx_k_Failed_to_initialize_XPress_with[] = "Failed to initialize XPress with compression level ";
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
 static const char __pyx_k_Failed_to_allocate_output_buffer_2[] = "Failed to allocate output buffer for compression.";
 /* #### Code section: decls ### */
-static int __pyx_pf_7xpress9_7Xpress9___cinit__(struct __pyx_obj_7xpress9_Xpress9 *__pyx_v_self); /* proto */
+static int __pyx_pf_7xpress9_7Xpress9___cinit__(struct __pyx_obj_7xpress9_Xpress9 *__pyx_v_self, int __pyx_v_compression_level, int __pyx_v_encoder, int __pyx_v_decoder); /* proto */
 static void __pyx_pf_7xpress9_7Xpress9_2__dealloc__(struct __pyx_obj_7xpress9_Xpress9 *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7xpress9_7Xpress9_17compression_level___get__(struct __pyx_obj_7xpress9_Xpress9 *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_7xpress9_7Xpress9_4decompress(struct __pyx_obj_7xpress9_Xpress9 *__pyx_v_self, PyObject *__pyx_v_compressed_data, int __pyx_v_uncompressed_size); /* proto */
 static PyObject *__pyx_pf_7xpress9_7Xpress9_6compress(struct __pyx_obj_7xpress9_Xpress9 *__pyx_v_self, PyObject *__pyx_v_uncompressed_data, int __pyx_v_max_compressed_size); /* proto */
 static PyObject *__pyx_pf_7xpress9_7Xpress9_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7xpress9_Xpress9 *__pyx_v_self); /* proto */
@@ -2264,11 +2276,13 @@ typedef struct {
   PyObject *__pyx_type_7xpress9_Xpress9;
   #endif
   PyTypeObject *__pyx_ptype_7xpress9_Xpress9;
-  PyObject *__pyx_kp_u_Compression_failed_or_not_effect;
-  PyObject *__pyx_kp_u_Decompression_failed_Expected;
+  PyObject *__pyx_kp_u_;
+  PyObject *__pyx_kp_s_Compression_failed_buffer_may_be;
+  PyObject *__pyx_kp_u_Decompression_failed_Got;
+  PyObject *__pyx_kp_u_Decompression_size_mismatch_Expe;
   PyObject *__pyx_kp_s_Failed_to_allocate_output_buffer;
   PyObject *__pyx_kp_s_Failed_to_allocate_output_buffer_2;
-  PyObject *__pyx_kp_s_Failed_to_initialize_Xpress9;
+  PyObject *__pyx_kp_u_Failed_to_initialize_XPress_with;
   PyObject *__pyx_n_s_MemoryError;
   PyObject *__pyx_n_s_TypeError;
   PyObject *__pyx_n_s_ValueError;
@@ -2277,20 +2291,23 @@ typedef struct {
   PyObject *__pyx_n_s_Xpress9___setstate_cython;
   PyObject *__pyx_n_s_Xpress9_compress;
   PyObject *__pyx_n_s_Xpress9_decompress;
-  PyObject *__pyx_n_s__12;
+  PyObject *__pyx_n_s__14;
   PyObject *__pyx_n_s_asyncio_coroutines;
+  PyObject *__pyx_kp_u_bytes;
   PyObject *__pyx_n_s_cline_in_traceback;
   PyObject *__pyx_n_s_compress;
   PyObject *__pyx_n_s_compressed_data;
   PyObject *__pyx_n_s_compressed_ptr;
-  PyObject *__pyx_kp_u_compressed_size;
-  PyObject *__pyx_n_s_compressed_size_2;
+  PyObject *__pyx_n_s_compressed_size;
+  PyObject *__pyx_n_s_compression_level;
+  PyObject *__pyx_n_s_decoder;
   PyObject *__pyx_n_s_decompress;
   PyObject *__pyx_n_s_decompressed_data;
   PyObject *__pyx_n_s_decompressed_ptr;
   PyObject *__pyx_n_s_decompressed_size;
   PyObject *__pyx_kp_u_disable;
   PyObject *__pyx_kp_u_enable;
+  PyObject *__pyx_n_s_encoder;
   PyObject *__pyx_kp_u_gc;
   PyObject *__pyx_n_s_getstate;
   PyObject *__pyx_kp_u_got;
@@ -2314,17 +2331,19 @@ typedef struct {
   PyObject *__pyx_n_s_uncompressed_size;
   PyObject *__pyx_n_s_xpress9;
   PyObject *__pyx_kp_s_xpress9_pyx;
-  PyObject *__pyx_tuple_;
+  PyObject *__pyx_int_0;
   PyObject *__pyx_tuple__2;
   PyObject *__pyx_tuple__3;
   PyObject *__pyx_tuple__4;
-  PyObject *__pyx_tuple__6;
-  PyObject *__pyx_tuple__8;
+  PyObject *__pyx_tuple__5;
+  PyObject *__pyx_tuple__7;
+  PyObject *__pyx_tuple__9;
   PyObject *__pyx_tuple__10;
-  PyObject *__pyx_codeobj__5;
-  PyObject *__pyx_codeobj__7;
-  PyObject *__pyx_codeobj__9;
+  PyObject *__pyx_tuple__12;
+  PyObject *__pyx_codeobj__6;
+  PyObject *__pyx_codeobj__8;
   PyObject *__pyx_codeobj__11;
+  PyObject *__pyx_codeobj__13;
 } __pyx_mstate;
 
 #if CYTHON_USE_MODULE_STATE
@@ -2369,11 +2388,13 @@ static int __pyx_m_clear(PyObject *m) {
   #endif
   Py_CLEAR(clear_module_state->__pyx_ptype_7xpress9_Xpress9);
   Py_CLEAR(clear_module_state->__pyx_type_7xpress9_Xpress9);
-  Py_CLEAR(clear_module_state->__pyx_kp_u_Compression_failed_or_not_effect);
-  Py_CLEAR(clear_module_state->__pyx_kp_u_Decompression_failed_Expected);
+  Py_CLEAR(clear_module_state->__pyx_kp_u_);
+  Py_CLEAR(clear_module_state->__pyx_kp_s_Compression_failed_buffer_may_be);
+  Py_CLEAR(clear_module_state->__pyx_kp_u_Decompression_failed_Got);
+  Py_CLEAR(clear_module_state->__pyx_kp_u_Decompression_size_mismatch_Expe);
   Py_CLEAR(clear_module_state->__pyx_kp_s_Failed_to_allocate_output_buffer);
   Py_CLEAR(clear_module_state->__pyx_kp_s_Failed_to_allocate_output_buffer_2);
-  Py_CLEAR(clear_module_state->__pyx_kp_s_Failed_to_initialize_Xpress9);
+  Py_CLEAR(clear_module_state->__pyx_kp_u_Failed_to_initialize_XPress_with);
   Py_CLEAR(clear_module_state->__pyx_n_s_MemoryError);
   Py_CLEAR(clear_module_state->__pyx_n_s_TypeError);
   Py_CLEAR(clear_module_state->__pyx_n_s_ValueError);
@@ -2382,20 +2403,23 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_Xpress9___setstate_cython);
   Py_CLEAR(clear_module_state->__pyx_n_s_Xpress9_compress);
   Py_CLEAR(clear_module_state->__pyx_n_s_Xpress9_decompress);
-  Py_CLEAR(clear_module_state->__pyx_n_s__12);
+  Py_CLEAR(clear_module_state->__pyx_n_s__14);
   Py_CLEAR(clear_module_state->__pyx_n_s_asyncio_coroutines);
+  Py_CLEAR(clear_module_state->__pyx_kp_u_bytes);
   Py_CLEAR(clear_module_state->__pyx_n_s_cline_in_traceback);
   Py_CLEAR(clear_module_state->__pyx_n_s_compress);
   Py_CLEAR(clear_module_state->__pyx_n_s_compressed_data);
   Py_CLEAR(clear_module_state->__pyx_n_s_compressed_ptr);
-  Py_CLEAR(clear_module_state->__pyx_kp_u_compressed_size);
-  Py_CLEAR(clear_module_state->__pyx_n_s_compressed_size_2);
+  Py_CLEAR(clear_module_state->__pyx_n_s_compressed_size);
+  Py_CLEAR(clear_module_state->__pyx_n_s_compression_level);
+  Py_CLEAR(clear_module_state->__pyx_n_s_decoder);
   Py_CLEAR(clear_module_state->__pyx_n_s_decompress);
   Py_CLEAR(clear_module_state->__pyx_n_s_decompressed_data);
   Py_CLEAR(clear_module_state->__pyx_n_s_decompressed_ptr);
   Py_CLEAR(clear_module_state->__pyx_n_s_decompressed_size);
   Py_CLEAR(clear_module_state->__pyx_kp_u_disable);
   Py_CLEAR(clear_module_state->__pyx_kp_u_enable);
+  Py_CLEAR(clear_module_state->__pyx_n_s_encoder);
   Py_CLEAR(clear_module_state->__pyx_kp_u_gc);
   Py_CLEAR(clear_module_state->__pyx_n_s_getstate);
   Py_CLEAR(clear_module_state->__pyx_kp_u_got);
@@ -2419,17 +2443,19 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_uncompressed_size);
   Py_CLEAR(clear_module_state->__pyx_n_s_xpress9);
   Py_CLEAR(clear_module_state->__pyx_kp_s_xpress9_pyx);
-  Py_CLEAR(clear_module_state->__pyx_tuple_);
+  Py_CLEAR(clear_module_state->__pyx_int_0);
   Py_CLEAR(clear_module_state->__pyx_tuple__2);
   Py_CLEAR(clear_module_state->__pyx_tuple__3);
   Py_CLEAR(clear_module_state->__pyx_tuple__4);
-  Py_CLEAR(clear_module_state->__pyx_tuple__6);
-  Py_CLEAR(clear_module_state->__pyx_tuple__8);
+  Py_CLEAR(clear_module_state->__pyx_tuple__5);
+  Py_CLEAR(clear_module_state->__pyx_tuple__7);
+  Py_CLEAR(clear_module_state->__pyx_tuple__9);
   Py_CLEAR(clear_module_state->__pyx_tuple__10);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__5);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__7);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__9);
+  Py_CLEAR(clear_module_state->__pyx_tuple__12);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__6);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__8);
   Py_CLEAR(clear_module_state->__pyx_codeobj__11);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__13);
   return 0;
 }
 #endif
@@ -2452,11 +2478,13 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   #endif
   Py_VISIT(traverse_module_state->__pyx_ptype_7xpress9_Xpress9);
   Py_VISIT(traverse_module_state->__pyx_type_7xpress9_Xpress9);
-  Py_VISIT(traverse_module_state->__pyx_kp_u_Compression_failed_or_not_effect);
-  Py_VISIT(traverse_module_state->__pyx_kp_u_Decompression_failed_Expected);
+  Py_VISIT(traverse_module_state->__pyx_kp_u_);
+  Py_VISIT(traverse_module_state->__pyx_kp_s_Compression_failed_buffer_may_be);
+  Py_VISIT(traverse_module_state->__pyx_kp_u_Decompression_failed_Got);
+  Py_VISIT(traverse_module_state->__pyx_kp_u_Decompression_size_mismatch_Expe);
   Py_VISIT(traverse_module_state->__pyx_kp_s_Failed_to_allocate_output_buffer);
   Py_VISIT(traverse_module_state->__pyx_kp_s_Failed_to_allocate_output_buffer_2);
-  Py_VISIT(traverse_module_state->__pyx_kp_s_Failed_to_initialize_Xpress9);
+  Py_VISIT(traverse_module_state->__pyx_kp_u_Failed_to_initialize_XPress_with);
   Py_VISIT(traverse_module_state->__pyx_n_s_MemoryError);
   Py_VISIT(traverse_module_state->__pyx_n_s_TypeError);
   Py_VISIT(traverse_module_state->__pyx_n_s_ValueError);
@@ -2465,20 +2493,23 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_Xpress9___setstate_cython);
   Py_VISIT(traverse_module_state->__pyx_n_s_Xpress9_compress);
   Py_VISIT(traverse_module_state->__pyx_n_s_Xpress9_decompress);
-  Py_VISIT(traverse_module_state->__pyx_n_s__12);
+  Py_VISIT(traverse_module_state->__pyx_n_s__14);
   Py_VISIT(traverse_module_state->__pyx_n_s_asyncio_coroutines);
+  Py_VISIT(traverse_module_state->__pyx_kp_u_bytes);
   Py_VISIT(traverse_module_state->__pyx_n_s_cline_in_traceback);
   Py_VISIT(traverse_module_state->__pyx_n_s_compress);
   Py_VISIT(traverse_module_state->__pyx_n_s_compressed_data);
   Py_VISIT(traverse_module_state->__pyx_n_s_compressed_ptr);
-  Py_VISIT(traverse_module_state->__pyx_kp_u_compressed_size);
-  Py_VISIT(traverse_module_state->__pyx_n_s_compressed_size_2);
+  Py_VISIT(traverse_module_state->__pyx_n_s_compressed_size);
+  Py_VISIT(traverse_module_state->__pyx_n_s_compression_level);
+  Py_VISIT(traverse_module_state->__pyx_n_s_decoder);
   Py_VISIT(traverse_module_state->__pyx_n_s_decompress);
   Py_VISIT(traverse_module_state->__pyx_n_s_decompressed_data);
   Py_VISIT(traverse_module_state->__pyx_n_s_decompressed_ptr);
   Py_VISIT(traverse_module_state->__pyx_n_s_decompressed_size);
   Py_VISIT(traverse_module_state->__pyx_kp_u_disable);
   Py_VISIT(traverse_module_state->__pyx_kp_u_enable);
+  Py_VISIT(traverse_module_state->__pyx_n_s_encoder);
   Py_VISIT(traverse_module_state->__pyx_kp_u_gc);
   Py_VISIT(traverse_module_state->__pyx_n_s_getstate);
   Py_VISIT(traverse_module_state->__pyx_kp_u_got);
@@ -2502,17 +2533,19 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_uncompressed_size);
   Py_VISIT(traverse_module_state->__pyx_n_s_xpress9);
   Py_VISIT(traverse_module_state->__pyx_kp_s_xpress9_pyx);
-  Py_VISIT(traverse_module_state->__pyx_tuple_);
+  Py_VISIT(traverse_module_state->__pyx_int_0);
   Py_VISIT(traverse_module_state->__pyx_tuple__2);
   Py_VISIT(traverse_module_state->__pyx_tuple__3);
   Py_VISIT(traverse_module_state->__pyx_tuple__4);
-  Py_VISIT(traverse_module_state->__pyx_tuple__6);
-  Py_VISIT(traverse_module_state->__pyx_tuple__8);
+  Py_VISIT(traverse_module_state->__pyx_tuple__5);
+  Py_VISIT(traverse_module_state->__pyx_tuple__7);
+  Py_VISIT(traverse_module_state->__pyx_tuple__9);
   Py_VISIT(traverse_module_state->__pyx_tuple__10);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__5);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__7);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__9);
+  Py_VISIT(traverse_module_state->__pyx_tuple__12);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__6);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__8);
   Py_VISIT(traverse_module_state->__pyx_codeobj__11);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__13);
   return 0;
 }
 #endif
@@ -2549,11 +2582,13 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_type_7xpress9_Xpress9 __pyx_mstate_global->__pyx_type_7xpress9_Xpress9
 #endif
 #define __pyx_ptype_7xpress9_Xpress9 __pyx_mstate_global->__pyx_ptype_7xpress9_Xpress9
-#define __pyx_kp_u_Compression_failed_or_not_effect __pyx_mstate_global->__pyx_kp_u_Compression_failed_or_not_effect
-#define __pyx_kp_u_Decompression_failed_Expected __pyx_mstate_global->__pyx_kp_u_Decompression_failed_Expected
+#define __pyx_kp_u_ __pyx_mstate_global->__pyx_kp_u_
+#define __pyx_kp_s_Compression_failed_buffer_may_be __pyx_mstate_global->__pyx_kp_s_Compression_failed_buffer_may_be
+#define __pyx_kp_u_Decompression_failed_Got __pyx_mstate_global->__pyx_kp_u_Decompression_failed_Got
+#define __pyx_kp_u_Decompression_size_mismatch_Expe __pyx_mstate_global->__pyx_kp_u_Decompression_size_mismatch_Expe
 #define __pyx_kp_s_Failed_to_allocate_output_buffer __pyx_mstate_global->__pyx_kp_s_Failed_to_allocate_output_buffer
 #define __pyx_kp_s_Failed_to_allocate_output_buffer_2 __pyx_mstate_global->__pyx_kp_s_Failed_to_allocate_output_buffer_2
-#define __pyx_kp_s_Failed_to_initialize_Xpress9 __pyx_mstate_global->__pyx_kp_s_Failed_to_initialize_Xpress9
+#define __pyx_kp_u_Failed_to_initialize_XPress_with __pyx_mstate_global->__pyx_kp_u_Failed_to_initialize_XPress_with
 #define __pyx_n_s_MemoryError __pyx_mstate_global->__pyx_n_s_MemoryError
 #define __pyx_n_s_TypeError __pyx_mstate_global->__pyx_n_s_TypeError
 #define __pyx_n_s_ValueError __pyx_mstate_global->__pyx_n_s_ValueError
@@ -2562,20 +2597,23 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_Xpress9___setstate_cython __pyx_mstate_global->__pyx_n_s_Xpress9___setstate_cython
 #define __pyx_n_s_Xpress9_compress __pyx_mstate_global->__pyx_n_s_Xpress9_compress
 #define __pyx_n_s_Xpress9_decompress __pyx_mstate_global->__pyx_n_s_Xpress9_decompress
-#define __pyx_n_s__12 __pyx_mstate_global->__pyx_n_s__12
+#define __pyx_n_s__14 __pyx_mstate_global->__pyx_n_s__14
 #define __pyx_n_s_asyncio_coroutines __pyx_mstate_global->__pyx_n_s_asyncio_coroutines
+#define __pyx_kp_u_bytes __pyx_mstate_global->__pyx_kp_u_bytes
 #define __pyx_n_s_cline_in_traceback __pyx_mstate_global->__pyx_n_s_cline_in_traceback
 #define __pyx_n_s_compress __pyx_mstate_global->__pyx_n_s_compress
 #define __pyx_n_s_compressed_data __pyx_mstate_global->__pyx_n_s_compressed_data
 #define __pyx_n_s_compressed_ptr __pyx_mstate_global->__pyx_n_s_compressed_ptr
-#define __pyx_kp_u_compressed_size __pyx_mstate_global->__pyx_kp_u_compressed_size
-#define __pyx_n_s_compressed_size_2 __pyx_mstate_global->__pyx_n_s_compressed_size_2
+#define __pyx_n_s_compressed_size __pyx_mstate_global->__pyx_n_s_compressed_size
+#define __pyx_n_s_compression_level __pyx_mstate_global->__pyx_n_s_compression_level
+#define __pyx_n_s_decoder __pyx_mstate_global->__pyx_n_s_decoder
 #define __pyx_n_s_decompress __pyx_mstate_global->__pyx_n_s_decompress
 #define __pyx_n_s_decompressed_data __pyx_mstate_global->__pyx_n_s_decompressed_data
 #define __pyx_n_s_decompressed_ptr __pyx_mstate_global->__pyx_n_s_decompressed_ptr
 #define __pyx_n_s_decompressed_size __pyx_mstate_global->__pyx_n_s_decompressed_size
 #define __pyx_kp_u_disable __pyx_mstate_global->__pyx_kp_u_disable
 #define __pyx_kp_u_enable __pyx_mstate_global->__pyx_kp_u_enable
+#define __pyx_n_s_encoder __pyx_mstate_global->__pyx_n_s_encoder
 #define __pyx_kp_u_gc __pyx_mstate_global->__pyx_kp_u_gc
 #define __pyx_n_s_getstate __pyx_mstate_global->__pyx_n_s_getstate
 #define __pyx_kp_u_got __pyx_mstate_global->__pyx_kp_u_got
@@ -2599,32 +2637,41 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_uncompressed_size __pyx_mstate_global->__pyx_n_s_uncompressed_size
 #define __pyx_n_s_xpress9 __pyx_mstate_global->__pyx_n_s_xpress9
 #define __pyx_kp_s_xpress9_pyx __pyx_mstate_global->__pyx_kp_s_xpress9_pyx
-#define __pyx_tuple_ __pyx_mstate_global->__pyx_tuple_
+#define __pyx_int_0 __pyx_mstate_global->__pyx_int_0
 #define __pyx_tuple__2 __pyx_mstate_global->__pyx_tuple__2
 #define __pyx_tuple__3 __pyx_mstate_global->__pyx_tuple__3
 #define __pyx_tuple__4 __pyx_mstate_global->__pyx_tuple__4
-#define __pyx_tuple__6 __pyx_mstate_global->__pyx_tuple__6
-#define __pyx_tuple__8 __pyx_mstate_global->__pyx_tuple__8
+#define __pyx_tuple__5 __pyx_mstate_global->__pyx_tuple__5
+#define __pyx_tuple__7 __pyx_mstate_global->__pyx_tuple__7
+#define __pyx_tuple__9 __pyx_mstate_global->__pyx_tuple__9
 #define __pyx_tuple__10 __pyx_mstate_global->__pyx_tuple__10
-#define __pyx_codeobj__5 __pyx_mstate_global->__pyx_codeobj__5
-#define __pyx_codeobj__7 __pyx_mstate_global->__pyx_codeobj__7
-#define __pyx_codeobj__9 __pyx_mstate_global->__pyx_codeobj__9
+#define __pyx_tuple__12 __pyx_mstate_global->__pyx_tuple__12
+#define __pyx_codeobj__6 __pyx_mstate_global->__pyx_codeobj__6
+#define __pyx_codeobj__8 __pyx_mstate_global->__pyx_codeobj__8
 #define __pyx_codeobj__11 __pyx_mstate_global->__pyx_codeobj__11
+#define __pyx_codeobj__13 __pyx_mstate_global->__pyx_codeobj__13
 /* #### Code section: module_code ### */
 
-/* "xpress9.pyx":13
- *     cdef XPRESS9_CONTEXT* context
+/* "xpress9.pyx":14
+ *     cdef int _compression_level
  * 
- *     def __cinit__(self):             # <<<<<<<<<<<<<<
- *         """ Initialize the library and allocate context. """
- *         self.context = Initialize()
+ *     def __cinit__(self, int compression_level=9, bint encoder=True, bint decoder=True):             # <<<<<<<<<<<<<<
+ *         """
+ *         Initialize the library and allocate context.
  */
 
 /* Python wrapper */
 static int __pyx_pw_7xpress9_7Xpress9_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_pw_7xpress9_7Xpress9_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  int __pyx_v_compression_level;
+  int __pyx_v_encoder;
+  int __pyx_v_decoder;
   CYTHON_UNUSED Py_ssize_t __pyx_nargs;
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
+  PyObject* values[3] = {0,0,0};
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
@@ -2634,80 +2681,234 @@ static int __pyx_pw_7xpress9_7Xpress9_1__cinit__(PyObject *__pyx_v_self, PyObjec
   __pyx_nargs = PyTuple_Size(__pyx_args); if (unlikely(__pyx_nargs < 0)) return -1;
   #endif
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  if (unlikely(__pyx_nargs > 0)) {
-    __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 0, 0, __pyx_nargs); return -1;}
-  if (unlikely(__pyx_kwds) && __Pyx_NumKwargs_VARARGS(__pyx_kwds) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__cinit__", 0))) return -1;
-  __pyx_r = __pyx_pf_7xpress9_7Xpress9___cinit__(((struct __pyx_obj_7xpress9_Xpress9 *)__pyx_v_self));
+  {
+    PyObject **__pyx_pyargnames[] = {&__pyx_n_s_compression_level,&__pyx_n_s_encoder,&__pyx_n_s_decoder,0};
+    if (__pyx_kwds) {
+      Py_ssize_t kw_args;
+      switch (__pyx_nargs) {
+        case  3: values[2] = __Pyx_Arg_VARARGS(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = __Pyx_Arg_VARARGS(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = __Pyx_Arg_VARARGS(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = __Pyx_NumKwargs_VARARGS(__pyx_kwds);
+      switch (__pyx_nargs) {
+        case  0:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_GetKwValue_VARARGS(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_compression_level);
+          if (value) { values[0] = __Pyx_Arg_NewRef_VARARGS(value); kw_args--; }
+          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_GetKwValue_VARARGS(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_encoder);
+          if (value) { values[1] = __Pyx_Arg_NewRef_VARARGS(value); kw_args--; }
+          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  2:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_GetKwValue_VARARGS(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_decoder);
+          if (value) { values[2] = __Pyx_Arg_NewRef_VARARGS(value); kw_args--; }
+          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        const Py_ssize_t kwd_pos_args = __pyx_nargs;
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__cinit__") < 0)) __PYX_ERR(0, 14, __pyx_L3_error)
+      }
+    } else {
+      switch (__pyx_nargs) {
+        case  3: values[2] = __Pyx_Arg_VARARGS(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = __Pyx_Arg_VARARGS(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = __Pyx_Arg_VARARGS(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+    }
+    if (values[0]) {
+      __pyx_v_compression_level = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_compression_level == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
+    } else {
+      __pyx_v_compression_level = ((int)9);
+    }
+    if (values[1]) {
+      __pyx_v_encoder = __Pyx_PyObject_IsTrue(values[1]); if (unlikely((__pyx_v_encoder == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
+    } else {
+      __pyx_v_encoder = ((int)1);
+    }
+    if (values[2]) {
+      __pyx_v_decoder = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_decoder == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
+    } else {
+      __pyx_v_decoder = ((int)1);
+    }
+  }
+  goto __pyx_L6_skip;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 0, 3, __pyx_nargs); __PYX_ERR(0, 14, __pyx_L3_error)
+  __pyx_L6_skip:;
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L3_error:;
+  {
+    Py_ssize_t __pyx_temp;
+    for (__pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+      __Pyx_Arg_XDECREF_VARARGS(values[__pyx_temp]);
+    }
+  }
+  __Pyx_AddTraceback("xpress9.Xpress9.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return -1;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_7xpress9_7Xpress9___cinit__(((struct __pyx_obj_7xpress9_Xpress9 *)__pyx_v_self), __pyx_v_compression_level, __pyx_v_encoder, __pyx_v_decoder);
 
   /* function exit code */
+  {
+    Py_ssize_t __pyx_temp;
+    for (__pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+      __Pyx_Arg_XDECREF_VARARGS(values[__pyx_temp]);
+    }
+  }
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_7xpress9_7Xpress9___cinit__(struct __pyx_obj_7xpress9_Xpress9 *__pyx_v_self) {
+static int __pyx_pf_7xpress9_7Xpress9___cinit__(struct __pyx_obj_7xpress9_Xpress9 *__pyx_v_self, int __pyx_v_compression_level, int __pyx_v_encoder, int __pyx_v_decoder) {
+  BOOL __pyx_v_c_encoder;
+  BOOL __pyx_v_c_decoder;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
-  int __pyx_t_1;
-  PyObject *__pyx_t_2 = NULL;
+  BOOL __pyx_t_1;
+  int __pyx_t_2;
+  PyObject *__pyx_t_3 = NULL;
+  Py_ssize_t __pyx_t_4;
+  Py_UCS4 __pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__cinit__", 1);
 
-  /* "xpress9.pyx":15
- *     def __cinit__(self):
- *         """ Initialize the library and allocate context. """
- *         self.context = Initialize()             # <<<<<<<<<<<<<<
- *         if self.context is NULL:
- *             raise MemoryError("Failed to initialize Xpress9.")
- */
-  __pyx_v_self->context = Initialize();
-
-  /* "xpress9.pyx":16
- *         """ Initialize the library and allocate context. """
- *         self.context = Initialize()
- *         if self.context is NULL:             # <<<<<<<<<<<<<<
- *             raise MemoryError("Failed to initialize Xpress9.")
+  /* "xpress9.pyx":24
+ *             decoder: Whether to initialize the decoder (True by default)
+ *         """
+ *         cdef BOOL c_encoder = 1 if encoder else 0             # <<<<<<<<<<<<<<
+ *         cdef BOOL c_decoder = 1 if decoder else 0
  * 
  */
-  __pyx_t_1 = (__pyx_v_self->context == NULL);
-  if (unlikely(__pyx_t_1)) {
+  if (__pyx_v_encoder) {
+    __pyx_t_1 = 1;
+  } else {
+    __pyx_t_1 = 0;
+  }
+  __pyx_v_c_encoder = __pyx_t_1;
 
-    /* "xpress9.pyx":17
- *         self.context = Initialize()
+  /* "xpress9.pyx":25
+ *         """
+ *         cdef BOOL c_encoder = 1 if encoder else 0
+ *         cdef BOOL c_decoder = 1 if decoder else 0             # <<<<<<<<<<<<<<
+ * 
+ *         # Store the compression level
+ */
+  if (__pyx_v_decoder) {
+    __pyx_t_1 = 1;
+  } else {
+    __pyx_t_1 = 0;
+  }
+  __pyx_v_c_decoder = __pyx_t_1;
+
+  /* "xpress9.pyx":28
+ * 
+ *         # Store the compression level
+ *         self._compression_level = compression_level             # <<<<<<<<<<<<<<
+ * 
+ *         # Initialize the context with the specified compression level
+ */
+  __pyx_v_self->_compression_level = __pyx_v_compression_level;
+
+  /* "xpress9.pyx":31
+ * 
+ *         # Initialize the context with the specified compression level
+ *         self.context = Initialize(c_encoder, c_decoder, compression_level)             # <<<<<<<<<<<<<<
  *         if self.context is NULL:
- *             raise MemoryError("Failed to initialize Xpress9.")             # <<<<<<<<<<<<<<
+ *             raise MemoryError(f"Failed to initialize XPress with compression level {compression_level}.")
+ */
+  __pyx_v_self->context = Initialize(__pyx_v_c_encoder, __pyx_v_c_decoder, __pyx_v_compression_level);
+
+  /* "xpress9.pyx":32
+ *         # Initialize the context with the specified compression level
+ *         self.context = Initialize(c_encoder, c_decoder, compression_level)
+ *         if self.context is NULL:             # <<<<<<<<<<<<<<
+ *             raise MemoryError(f"Failed to initialize XPress with compression level {compression_level}.")
+ * 
+ */
+  __pyx_t_2 = (__pyx_v_self->context == NULL);
+  if (unlikely(__pyx_t_2)) {
+
+    /* "xpress9.pyx":33
+ *         self.context = Initialize(c_encoder, c_decoder, compression_level)
+ *         if self.context is NULL:
+ *             raise MemoryError(f"Failed to initialize XPress with compression level {compression_level}.")             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 17, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_Raise(__pyx_t_2, 0, 0, 0);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 17, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 33, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = 0;
+    __pyx_t_5 = 127;
+    __Pyx_INCREF(__pyx_kp_u_Failed_to_initialize_XPress_with);
+    __pyx_t_4 += 51;
+    __Pyx_GIVEREF(__pyx_kp_u_Failed_to_initialize_XPress_with);
+    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_kp_u_Failed_to_initialize_XPress_with);
+    __pyx_t_6 = __Pyx_PyUnicode_From_int(__pyx_v_compression_level, 0, ' ', 'd'); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 33, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_4 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_6);
+    __Pyx_GIVEREF(__pyx_t_6);
+    PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_6);
+    __pyx_t_6 = 0;
+    __Pyx_INCREF(__pyx_kp_u_);
+    __pyx_t_4 += 1;
+    __Pyx_GIVEREF(__pyx_kp_u_);
+    PyTuple_SET_ITEM(__pyx_t_3, 2, __pyx_kp_u_);
+    __pyx_t_6 = __Pyx_PyUnicode_Join(__pyx_t_3, 3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 33, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_MemoryError, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 33, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_Raise(__pyx_t_3, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __PYX_ERR(0, 33, __pyx_L1_error)
 
-    /* "xpress9.pyx":16
- *         """ Initialize the library and allocate context. """
- *         self.context = Initialize()
+    /* "xpress9.pyx":32
+ *         # Initialize the context with the specified compression level
+ *         self.context = Initialize(c_encoder, c_decoder, compression_level)
  *         if self.context is NULL:             # <<<<<<<<<<<<<<
- *             raise MemoryError("Failed to initialize Xpress9.")
+ *             raise MemoryError(f"Failed to initialize XPress with compression level {compression_level}.")
  * 
  */
   }
 
-  /* "xpress9.pyx":13
- *     cdef XPRESS9_CONTEXT* context
+  /* "xpress9.pyx":14
+ *     cdef int _compression_level
  * 
- *     def __cinit__(self):             # <<<<<<<<<<<<<<
- *         """ Initialize the library and allocate context. """
- *         self.context = Initialize()
+ *     def __cinit__(self, int compression_level=9, bint encoder=True, bint decoder=True):             # <<<<<<<<<<<<<<
+ *         """
+ *         Initialize the library and allocate context.
  */
 
   /* function exit code */
   __pyx_r = 0;
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_6);
   __Pyx_AddTraceback("xpress9.Xpress9.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
@@ -2715,8 +2916,8 @@ static int __pyx_pf_7xpress9_7Xpress9___cinit__(struct __pyx_obj_7xpress9_Xpress
   return __pyx_r;
 }
 
-/* "xpress9.pyx":19
- *             raise MemoryError("Failed to initialize Xpress9.")
+/* "xpress9.pyx":35
+ *             raise MemoryError(f"Failed to initialize XPress with compression level {compression_level}.")
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
  *         """ Cleanup and free resources. """
@@ -2739,7 +2940,7 @@ static void __pyx_pw_7xpress9_7Xpress9_3__dealloc__(PyObject *__pyx_v_self) {
 static void __pyx_pf_7xpress9_7Xpress9_2__dealloc__(struct __pyx_obj_7xpress9_Xpress9 *__pyx_v_self) {
   int __pyx_t_1;
 
-  /* "xpress9.pyx":21
+  /* "xpress9.pyx":37
  *     def __dealloc__(self):
  *         """ Cleanup and free resources. """
  *         if self.context:             # <<<<<<<<<<<<<<
@@ -2749,7 +2950,7 @@ static void __pyx_pf_7xpress9_7Xpress9_2__dealloc__(struct __pyx_obj_7xpress9_Xp
   __pyx_t_1 = (__pyx_v_self->context != 0);
   if (__pyx_t_1) {
 
-    /* "xpress9.pyx":22
+    /* "xpress9.pyx":38
  *         """ Cleanup and free resources. """
  *         if self.context:
  *             Terminate(self.context)             # <<<<<<<<<<<<<<
@@ -2758,16 +2959,16 @@ static void __pyx_pf_7xpress9_7Xpress9_2__dealloc__(struct __pyx_obj_7xpress9_Xp
  */
     Terminate(__pyx_v_self->context);
 
-    /* "xpress9.pyx":23
+    /* "xpress9.pyx":39
  *         if self.context:
  *             Terminate(self.context)
  *             self.context = NULL             # <<<<<<<<<<<<<<
  * 
- *     def decompress(self, bytes compressed_data, int uncompressed_size):
+ *     @property
  */
     __pyx_v_self->context = NULL;
 
-    /* "xpress9.pyx":21
+    /* "xpress9.pyx":37
  *     def __dealloc__(self):
  *         """ Cleanup and free resources. """
  *         if self.context:             # <<<<<<<<<<<<<<
@@ -2776,8 +2977,8 @@ static void __pyx_pf_7xpress9_7Xpress9_2__dealloc__(struct __pyx_obj_7xpress9_Xp
  */
   }
 
-  /* "xpress9.pyx":19
- *             raise MemoryError("Failed to initialize Xpress9.")
+  /* "xpress9.pyx":35
+ *             raise MemoryError(f"Failed to initialize XPress with compression level {compression_level}.")
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
  *         """ Cleanup and free resources. """
@@ -2787,12 +2988,77 @@ static void __pyx_pf_7xpress9_7Xpress9_2__dealloc__(struct __pyx_obj_7xpress9_Xp
   /* function exit code */
 }
 
-/* "xpress9.pyx":25
+/* "xpress9.pyx":41
  *             self.context = NULL
  * 
+ *     @property             # <<<<<<<<<<<<<<
+ *     def compression_level(self):
+ *         """ Get the current compression level """
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_7xpress9_7Xpress9_17compression_level_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7xpress9_7Xpress9_17compression_level_1__get__(PyObject *__pyx_v_self) {
+  CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
+  __pyx_r = __pyx_pf_7xpress9_7Xpress9_17compression_level___get__(((struct __pyx_obj_7xpress9_Xpress9 *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_7xpress9_7Xpress9_17compression_level___get__(struct __pyx_obj_7xpress9_Xpress9 *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 1);
+
+  /* "xpress9.pyx":44
+ *     def compression_level(self):
+ *         """ Get the current compression level """
+ *         return self._compression_level             # <<<<<<<<<<<<<<
+ * 
+ *     def decompress(self, bytes compressed_data, int uncompressed_size):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->_compression_level); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "xpress9.pyx":41
+ *             self.context = NULL
+ * 
+ *     @property             # <<<<<<<<<<<<<<
+ *     def compression_level(self):
+ *         """ Get the current compression level """
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("xpress9.Xpress9.compression_level.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "xpress9.pyx":46
+ *         return self._compression_level
+ * 
  *     def decompress(self, bytes compressed_data, int uncompressed_size):             # <<<<<<<<<<<<<<
- *         """ Decompresses the given data. Releases GIL for performance. """
- *         cdef int compressed_size = len(compressed_data)
+ *         """
+ *         Decompresses the given data. Releases GIL for performance.
  */
 
 /* Python wrapper */
@@ -2803,7 +3069,7 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-PyDoc_STRVAR(__pyx_doc_7xpress9_7Xpress9_4decompress, " Decompresses the given data. Releases GIL for performance. ");
+PyDoc_STRVAR(__pyx_doc_7xpress9_7Xpress9_4decompress, " \n        Decompresses the given data. Releases GIL for performance.\n        \n        Args:\n            compressed_data: The compressed data bytes\n            uncompressed_size: Expected size of uncompressed data\n            \n        Returns:\n            bytes: Decompressed data\n        ");
 static PyMethodDef __pyx_mdef_7xpress9_7Xpress9_5decompress = {"decompress", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_7xpress9_7Xpress9_5decompress, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_7xpress9_7Xpress9_4decompress};
 static PyObject *__pyx_pw_7xpress9_7Xpress9_5decompress(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
@@ -2852,7 +3118,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 46, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -2860,14 +3126,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 46, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("decompress", 1, 2, 2, 1); __PYX_ERR(0, 25, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("decompress", 1, 2, 2, 1); __PYX_ERR(0, 46, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "decompress") < 0)) __PYX_ERR(0, 25, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "decompress") < 0)) __PYX_ERR(0, 46, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -2876,11 +3142,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       values[1] = __Pyx_Arg_FASTCALL(__pyx_args, 1);
     }
     __pyx_v_compressed_data = ((PyObject*)values[0]);
-    __pyx_v_uncompressed_size = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_uncompressed_size == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
+    __pyx_v_uncompressed_size = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_uncompressed_size == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 46, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("decompress", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 25, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("decompress", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 46, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -2894,7 +3160,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_compressed_data), (&PyBytes_Type), 1, "compressed_data", 1))) __PYX_ERR(0, 25, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_compressed_data), (&PyBytes_Type), 1, "compressed_data", 1))) __PYX_ERR(0, 46, __pyx_L1_error)
   __pyx_r = __pyx_pf_7xpress9_7Xpress9_4decompress(((struct __pyx_obj_7xpress9_Xpress9 *)__pyx_v_self), __pyx_v_compressed_data, __pyx_v_uncompressed_size);
 
   /* function exit code */
@@ -2932,22 +3198,22 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_4decompress(struct __pyx_obj_7xpress
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("decompress", 1);
 
-  /* "xpress9.pyx":27
- *     def decompress(self, bytes compressed_data, int uncompressed_size):
- *         """ Decompresses the given data. Releases GIL for performance. """
+  /* "xpress9.pyx":57
+ *             bytes: Decompressed data
+ *         """
  *         cdef int compressed_size = len(compressed_data)             # <<<<<<<<<<<<<<
  *         cdef BYTE* compressed_ptr = <BYTE*>compressed_data
  *         cdef BYTE* decompressed_ptr = <BYTE*>malloc(uncompressed_size)
  */
   if (unlikely(__pyx_v_compressed_data == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    __PYX_ERR(0, 27, __pyx_L1_error)
+    __PYX_ERR(0, 57, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyBytes_GET_SIZE(__pyx_v_compressed_data); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 27, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBytes_GET_SIZE(__pyx_v_compressed_data); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 57, __pyx_L1_error)
   __pyx_v_compressed_size = __pyx_t_1;
 
-  /* "xpress9.pyx":28
- *         """ Decompresses the given data. Releases GIL for performance. """
+  /* "xpress9.pyx":58
+ *         """
  *         cdef int compressed_size = len(compressed_data)
  *         cdef BYTE* compressed_ptr = <BYTE*>compressed_data             # <<<<<<<<<<<<<<
  *         cdef BYTE* decompressed_ptr = <BYTE*>malloc(uncompressed_size)
@@ -2955,12 +3221,12 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_4decompress(struct __pyx_obj_7xpress
  */
   if (unlikely(__pyx_v_compressed_data == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "expected bytes, NoneType found");
-    __PYX_ERR(0, 28, __pyx_L1_error)
+    __PYX_ERR(0, 58, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyBytes_AsWritableUString(__pyx_v_compressed_data); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 28, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBytes_AsWritableUString(__pyx_v_compressed_data); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 58, __pyx_L1_error)
   __pyx_v_compressed_ptr = ((BYTE *)__pyx_t_2);
 
-  /* "xpress9.pyx":29
+  /* "xpress9.pyx":59
  *         cdef int compressed_size = len(compressed_data)
  *         cdef BYTE* compressed_ptr = <BYTE*>compressed_data
  *         cdef BYTE* decompressed_ptr = <BYTE*>malloc(uncompressed_size)             # <<<<<<<<<<<<<<
@@ -2969,7 +3235,7 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_4decompress(struct __pyx_obj_7xpress
  */
   __pyx_v_decompressed_ptr = ((BYTE *)malloc(__pyx_v_uncompressed_size));
 
-  /* "xpress9.pyx":30
+  /* "xpress9.pyx":60
  *         cdef BYTE* compressed_ptr = <BYTE*>compressed_data
  *         cdef BYTE* decompressed_ptr = <BYTE*>malloc(uncompressed_size)
  *         if not decompressed_ptr:             # <<<<<<<<<<<<<<
@@ -2979,20 +3245,20 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_4decompress(struct __pyx_obj_7xpress
   __pyx_t_3 = (!(__pyx_v_decompressed_ptr != 0));
   if (unlikely(__pyx_t_3)) {
 
-    /* "xpress9.pyx":31
+    /* "xpress9.pyx":61
  *         cdef BYTE* decompressed_ptr = <BYTE*>malloc(uncompressed_size)
  *         if not decompressed_ptr:
  *             raise MemoryError("Failed to allocate output buffer.")             # <<<<<<<<<<<<<<
  * 
  *         cdef UINT decompressed_size
  */
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 31, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 61, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_Raise(__pyx_t_4, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __PYX_ERR(0, 31, __pyx_L1_error)
+    __PYX_ERR(0, 61, __pyx_L1_error)
 
-    /* "xpress9.pyx":30
+    /* "xpress9.pyx":60
  *         cdef BYTE* compressed_ptr = <BYTE*>compressed_data
  *         cdef BYTE* decompressed_ptr = <BYTE*>malloc(uncompressed_size)
  *         if not decompressed_ptr:             # <<<<<<<<<<<<<<
@@ -3001,7 +3267,7 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_4decompress(struct __pyx_obj_7xpress
  */
   }
 
-  /* "xpress9.pyx":34
+  /* "xpress9.pyx":64
  * 
  *         cdef UINT decompressed_size
  *         with nogil:  # Release the GIL to allow parallel execution             # <<<<<<<<<<<<<<
@@ -3017,17 +3283,17 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_4decompress(struct __pyx_obj_7xpress
       #endif
       /*try:*/ {
 
-        /* "xpress9.pyx":35
+        /* "xpress9.pyx":65
  *         cdef UINT decompressed_size
  *         with nogil:  # Release the GIL to allow parallel execution
  *             decompressed_size = Decompress(self.context, compressed_ptr, compressed_size, decompressed_ptr, uncompressed_size)             # <<<<<<<<<<<<<<
  * 
- *         if decompressed_size != uncompressed_size:
+ *         if decompressed_size == 0:
  */
         __pyx_v_decompressed_size = Decompress(__pyx_v_self->context, __pyx_v_compressed_ptr, __pyx_v_compressed_size, __pyx_v_decompressed_ptr, __pyx_v_uncompressed_size);
       }
 
-      /* "xpress9.pyx":34
+      /* "xpress9.pyx":64
  * 
  *         cdef UINT decompressed_size
  *         with nogil:  # Release the GIL to allow parallel execution             # <<<<<<<<<<<<<<
@@ -3046,121 +3312,188 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_4decompress(struct __pyx_obj_7xpress
       }
   }
 
-  /* "xpress9.pyx":37
+  /* "xpress9.pyx":67
  *             decompressed_size = Decompress(self.context, compressed_ptr, compressed_size, decompressed_ptr, uncompressed_size)
  * 
- *         if decompressed_size != uncompressed_size:             # <<<<<<<<<<<<<<
+ *         if decompressed_size == 0:             # <<<<<<<<<<<<<<
  *             free(decompressed_ptr)
- *             raise ValueError(f"Decompression failed: Expected {uncompressed_size}, got {decompressed_size}")
+ *             raise ValueError(f"Decompression failed: Got {decompressed_size} bytes")
  */
-  __pyx_t_3 = (__pyx_v_decompressed_size != __pyx_v_uncompressed_size);
+  __pyx_t_3 = (__pyx_v_decompressed_size == 0);
   if (unlikely(__pyx_t_3)) {
 
-    /* "xpress9.pyx":38
+    /* "xpress9.pyx":68
  * 
- *         if decompressed_size != uncompressed_size:
+ *         if decompressed_size == 0:
  *             free(decompressed_ptr)             # <<<<<<<<<<<<<<
- *             raise ValueError(f"Decompression failed: Expected {uncompressed_size}, got {decompressed_size}")
+ *             raise ValueError(f"Decompression failed: Got {decompressed_size} bytes")
  * 
  */
     free(__pyx_v_decompressed_ptr);
 
-    /* "xpress9.pyx":39
- *         if decompressed_size != uncompressed_size:
+    /* "xpress9.pyx":69
+ *         if decompressed_size == 0:
  *             free(decompressed_ptr)
- *             raise ValueError(f"Decompression failed: Expected {uncompressed_size}, got {decompressed_size}")             # <<<<<<<<<<<<<<
+ *             raise ValueError(f"Decompression failed: Got {decompressed_size} bytes")             # <<<<<<<<<<<<<<
  * 
- *         decompressed_data = bytes(decompressed_ptr[:uncompressed_size])
+ *         if decompressed_size != uncompressed_size:
  */
-    __pyx_t_4 = PyTuple_New(4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_1 = 0;
     __pyx_t_5 = 127;
-    __Pyx_INCREF(__pyx_kp_u_Decompression_failed_Expected);
-    __pyx_t_1 += 31;
-    __Pyx_GIVEREF(__pyx_kp_u_Decompression_failed_Expected);
-    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_kp_u_Decompression_failed_Expected);
-    __pyx_t_6 = __Pyx_PyUnicode_From_int(__pyx_v_uncompressed_size, 0, ' ', 'd'); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_kp_u_Decompression_failed_Got);
+    __pyx_t_1 += 26;
+    __Pyx_GIVEREF(__pyx_kp_u_Decompression_failed_Got);
+    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_kp_u_Decompression_failed_Got);
+    __pyx_t_6 = __Pyx_PyInt_From_UINT(__pyx_v_decompressed_size); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_1 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_6);
-    __Pyx_GIVEREF(__pyx_t_6);
-    PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_6);
-    __pyx_t_6 = 0;
-    __Pyx_INCREF(__pyx_kp_u_got);
-    __pyx_t_1 += 6;
-    __Pyx_GIVEREF(__pyx_kp_u_got);
-    PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_kp_u_got);
-    __pyx_t_6 = __Pyx_PyInt_From_UINT(__pyx_v_decompressed_size); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 39, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_7 = __Pyx_PyObject_FormatSimple(__pyx_t_6, __pyx_empty_unicode); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_FormatSimple(__pyx_t_6, __pyx_empty_unicode); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_5 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_7) > __pyx_t_5) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_7) : __pyx_t_5;
     __pyx_t_1 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_7);
     __Pyx_GIVEREF(__pyx_t_7);
-    PyTuple_SET_ITEM(__pyx_t_4, 3, __pyx_t_7);
+    PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_7);
     __pyx_t_7 = 0;
-    __pyx_t_7 = __Pyx_PyUnicode_Join(__pyx_t_4, 4, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_kp_u_bytes);
+    __pyx_t_1 += 6;
+    __Pyx_GIVEREF(__pyx_kp_u_bytes);
+    PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_kp_u_bytes);
+    __pyx_t_7 = __Pyx_PyUnicode_Join(__pyx_t_4, 3, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_7); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_7); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_Raise(__pyx_t_4, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __PYX_ERR(0, 39, __pyx_L1_error)
+    __PYX_ERR(0, 69, __pyx_L1_error)
 
-    /* "xpress9.pyx":37
+    /* "xpress9.pyx":67
  *             decompressed_size = Decompress(self.context, compressed_ptr, compressed_size, decompressed_ptr, uncompressed_size)
  * 
- *         if decompressed_size != uncompressed_size:             # <<<<<<<<<<<<<<
+ *         if decompressed_size == 0:             # <<<<<<<<<<<<<<
  *             free(decompressed_ptr)
- *             raise ValueError(f"Decompression failed: Expected {uncompressed_size}, got {decompressed_size}")
+ *             raise ValueError(f"Decompression failed: Got {decompressed_size} bytes")
  */
   }
 
-  /* "xpress9.pyx":41
- *             raise ValueError(f"Decompression failed: Expected {uncompressed_size}, got {decompressed_size}")
+  /* "xpress9.pyx":71
+ *             raise ValueError(f"Decompression failed: Got {decompressed_size} bytes")
  * 
- *         decompressed_data = bytes(decompressed_ptr[:uncompressed_size])             # <<<<<<<<<<<<<<
+ *         if decompressed_size != uncompressed_size:             # <<<<<<<<<<<<<<
+ *             # This might be a warning rather than an error if your implementation
+ *             # can handle different sizes
+ */
+  __pyx_t_3 = (__pyx_v_decompressed_size != __pyx_v_uncompressed_size);
+  if (unlikely(__pyx_t_3)) {
+
+    /* "xpress9.pyx":74
+ *             # This might be a warning rather than an error if your implementation
+ *             # can handle different sizes
+ *             free(decompressed_ptr)             # <<<<<<<<<<<<<<
+ *             raise ValueError(f"Decompression size mismatch: Expected {uncompressed_size}, got {decompressed_size}")
+ * 
+ */
+    free(__pyx_v_decompressed_ptr);
+
+    /* "xpress9.pyx":75
+ *             # can handle different sizes
+ *             free(decompressed_ptr)
+ *             raise ValueError(f"Decompression size mismatch: Expected {uncompressed_size}, got {decompressed_size}")             # <<<<<<<<<<<<<<
+ * 
+ *         decompressed_data = bytes(decompressed_ptr[:decompressed_size])
+ */
+    __pyx_t_4 = PyTuple_New(4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_1 = 0;
+    __pyx_t_5 = 127;
+    __Pyx_INCREF(__pyx_kp_u_Decompression_size_mismatch_Expe);
+    __pyx_t_1 += 38;
+    __Pyx_GIVEREF(__pyx_kp_u_Decompression_size_mismatch_Expe);
+    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_kp_u_Decompression_size_mismatch_Expe);
+    __pyx_t_7 = __Pyx_PyUnicode_From_int(__pyx_v_uncompressed_size, 0, ' ', 'd'); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    __pyx_t_1 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_7);
+    __Pyx_GIVEREF(__pyx_t_7);
+    PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_7);
+    __pyx_t_7 = 0;
+    __Pyx_INCREF(__pyx_kp_u_got);
+    __pyx_t_1 += 6;
+    __Pyx_GIVEREF(__pyx_kp_u_got);
+    PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_kp_u_got);
+    __pyx_t_7 = __Pyx_PyInt_From_UINT(__pyx_v_decompressed_size); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_t_7, __pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __pyx_t_5 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6) > __pyx_t_5) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6) : __pyx_t_5;
+    __pyx_t_1 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_6);
+    __Pyx_GIVEREF(__pyx_t_6);
+    PyTuple_SET_ITEM(__pyx_t_4, 3, __pyx_t_6);
+    __pyx_t_6 = 0;
+    __pyx_t_6 = __Pyx_PyUnicode_Join(__pyx_t_4, 4, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_Raise(__pyx_t_4, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __PYX_ERR(0, 75, __pyx_L1_error)
+
+    /* "xpress9.pyx":71
+ *             raise ValueError(f"Decompression failed: Got {decompressed_size} bytes")
+ * 
+ *         if decompressed_size != uncompressed_size:             # <<<<<<<<<<<<<<
+ *             # This might be a warning rather than an error if your implementation
+ *             # can handle different sizes
+ */
+  }
+
+  /* "xpress9.pyx":77
+ *             raise ValueError(f"Decompression size mismatch: Expected {uncompressed_size}, got {decompressed_size}")
+ * 
+ *         decompressed_data = bytes(decompressed_ptr[:decompressed_size])             # <<<<<<<<<<<<<<
  *         free(decompressed_ptr)
  *         return decompressed_data
  */
-  __pyx_t_4 = __Pyx_PyBytes_FromStringAndSize(((const char*)__pyx_v_decompressed_ptr) + 0, __pyx_v_uncompressed_size - 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyBytes_FromStringAndSize(((const char*)__pyx_v_decompressed_ptr) + 0, __pyx_v_decompressed_size - 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(((PyObject *)(&PyBytes_Type)), __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 41, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
+  __pyx_t_6 = __Pyx_PyObject_CallOneArg(((PyObject *)(&PyBytes_Type)), __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_v_decompressed_data = ((PyObject*)__pyx_t_7);
-  __pyx_t_7 = 0;
+  __pyx_v_decompressed_data = ((PyObject*)__pyx_t_6);
+  __pyx_t_6 = 0;
 
-  /* "xpress9.pyx":42
+  /* "xpress9.pyx":78
  * 
- *         decompressed_data = bytes(decompressed_ptr[:uncompressed_size])
+ *         decompressed_data = bytes(decompressed_ptr[:decompressed_size])
  *         free(decompressed_ptr)             # <<<<<<<<<<<<<<
  *         return decompressed_data
  * 
  */
   free(__pyx_v_decompressed_ptr);
 
-  /* "xpress9.pyx":43
- *         decompressed_data = bytes(decompressed_ptr[:uncompressed_size])
+  /* "xpress9.pyx":79
+ *         decompressed_data = bytes(decompressed_ptr[:decompressed_size])
  *         free(decompressed_ptr)
  *         return decompressed_data             # <<<<<<<<<<<<<<
  * 
- *     def compress(self, bytes uncompressed_data, int max_compressed_size):
+ *     def compress(self, bytes uncompressed_data, int max_compressed_size=0):
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_decompressed_data);
   __pyx_r = __pyx_v_decompressed_data;
   goto __pyx_L0;
 
-  /* "xpress9.pyx":25
- *             self.context = NULL
+  /* "xpress9.pyx":46
+ *         return self._compression_level
  * 
  *     def decompress(self, bytes compressed_data, int uncompressed_size):             # <<<<<<<<<<<<<<
- *         """ Decompresses the given data. Releases GIL for performance. """
- *         cdef int compressed_size = len(compressed_data)
+ *         """
+ *         Decompresses the given data. Releases GIL for performance.
  */
 
   /* function exit code */
@@ -3177,10 +3510,10 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_4decompress(struct __pyx_obj_7xpress
   return __pyx_r;
 }
 
-/* "xpress9.pyx":45
+/* "xpress9.pyx":81
  *         return decompressed_data
  * 
- *     def compress(self, bytes uncompressed_data, int max_compressed_size):             # <<<<<<<<<<<<<<
+ *     def compress(self, bytes uncompressed_data, int max_compressed_size=0):             # <<<<<<<<<<<<<<
  *         """
  *         Compresses the given uncompressed data.
  */
@@ -3193,7 +3526,7 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-PyDoc_STRVAR(__pyx_doc_7xpress9_7Xpress9_6compress, "\n        Compresses the given uncompressed data.\n        The max_compressed_size parameter specifies the size of the output buffer.\n        Releases the GIL during the compression operation.\n        Returns the compressed data as bytes.\n        ");
+PyDoc_STRVAR(__pyx_doc_7xpress9_7Xpress9_6compress, "\n        Compresses the given uncompressed data.\n        The max_compressed_size parameter specifies the size of the output buffer.\n        If max_compressed_size is 0, it will be estimated based on input size.\n        Releases the GIL during the compression operation.\n        \n        Args:\n            uncompressed_data: The data to compress\n            max_compressed_size: Maximum size of compressed output buffer\n                                (0 = auto-calculate)\n        \n        Returns:\n            bytes: Compressed data\n        ");
 static PyMethodDef __pyx_mdef_7xpress9_7Xpress9_7compress = {"compress", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_7xpress9_7Xpress9_7compress, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_7xpress9_7Xpress9_6compress};
 static PyObject *__pyx_pw_7xpress9_7Xpress9_7compress(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
@@ -3242,35 +3575,39 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 45, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 81, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
-        if (likely((values[1] = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_max_compressed_size)) != 0)) {
-          (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
-          kw_args--;
-        }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 45, __pyx_L3_error)
-        else {
-          __Pyx_RaiseArgtupleInvalid("compress", 1, 2, 2, 1); __PYX_ERR(0, 45, __pyx_L3_error)
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_max_compressed_size);
+          if (value) { values[1] = __Pyx_Arg_NewRef_FASTCALL(value); kw_args--; }
+          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 81, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "compress") < 0)) __PYX_ERR(0, 45, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "compress") < 0)) __PYX_ERR(0, 81, __pyx_L3_error)
       }
-    } else if (unlikely(__pyx_nargs != 2)) {
-      goto __pyx_L5_argtuple_error;
     } else {
-      values[0] = __Pyx_Arg_FASTCALL(__pyx_args, 0);
-      values[1] = __Pyx_Arg_FASTCALL(__pyx_args, 1);
+      switch (__pyx_nargs) {
+        case  2: values[1] = __Pyx_Arg_FASTCALL(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = __Pyx_Arg_FASTCALL(__pyx_args, 0);
+        break;
+        default: goto __pyx_L5_argtuple_error;
+      }
     }
     __pyx_v_uncompressed_data = ((PyObject*)values[0]);
-    __pyx_v_max_compressed_size = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_max_compressed_size == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 45, __pyx_L3_error)
+    if (values[1]) {
+      __pyx_v_max_compressed_size = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_max_compressed_size == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 81, __pyx_L3_error)
+    } else {
+      __pyx_v_max_compressed_size = ((int)0);
+    }
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compress", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 45, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compress", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 81, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3284,7 +3621,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_uncompressed_data), (&PyBytes_Type), 1, "uncompressed_data", 1))) __PYX_ERR(0, 45, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_uncompressed_data), (&PyBytes_Type), 1, "uncompressed_data", 1))) __PYX_ERR(0, 81, __pyx_L1_error)
   __pyx_r = __pyx_pf_7xpress9_7Xpress9_6compress(((struct __pyx_obj_7xpress9_Xpress9 *)__pyx_v_self), __pyx_v_uncompressed_data, __pyx_v_max_compressed_size);
 
   /* function exit code */
@@ -3311,48 +3648,73 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_6compress(struct __pyx_obj_7xpress9_
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   Py_ssize_t __pyx_t_1;
-  BYTE *__pyx_t_2;
-  int __pyx_t_3;
+  int __pyx_t_2;
+  BYTE *__pyx_t_3;
   PyObject *__pyx_t_4 = NULL;
-  int __pyx_t_5;
-  Py_UCS4 __pyx_t_6;
-  PyObject *__pyx_t_7 = NULL;
-  PyObject *__pyx_t_8 = NULL;
+  PyObject *__pyx_t_5 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("compress", 1);
 
-  /* "xpress9.pyx":52
- *         Returns the compressed data as bytes.
+  /* "xpress9.pyx":96
+ *             bytes: Compressed data
  *         """
  *         cdef int uncompressed_size = len(uncompressed_data)             # <<<<<<<<<<<<<<
- *         cdef BYTE* uncompressed_ptr = <BYTE*>uncompressed_data
- *         cdef BYTE* compressed_ptr = <BYTE*>malloc(max_compressed_size)
+ * 
+ *         # Calculate max compressed size if not provided
  */
   if (unlikely(__pyx_v_uncompressed_data == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    __PYX_ERR(0, 52, __pyx_L1_error)
+    __PYX_ERR(0, 96, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyBytes_GET_SIZE(__pyx_v_uncompressed_data); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 52, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBytes_GET_SIZE(__pyx_v_uncompressed_data); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 96, __pyx_L1_error)
   __pyx_v_uncompressed_size = __pyx_t_1;
 
-  /* "xpress9.pyx":53
- *         """
- *         cdef int uncompressed_size = len(uncompressed_data)
+  /* "xpress9.pyx":99
+ * 
+ *         # Calculate max compressed size if not provided
+ *         if max_compressed_size <= 0:             # <<<<<<<<<<<<<<
+ *             # Worst case scenario: compression adds overhead
+ *             max_compressed_size = uncompressed_size + 278
+ */
+  __pyx_t_2 = (__pyx_v_max_compressed_size <= 0);
+  if (__pyx_t_2) {
+
+    /* "xpress9.pyx":101
+ *         if max_compressed_size <= 0:
+ *             # Worst case scenario: compression adds overhead
+ *             max_compressed_size = uncompressed_size + 278             # <<<<<<<<<<<<<<
+ * 
+ *         cdef BYTE* uncompressed_ptr = <BYTE*>uncompressed_data
+ */
+    __pyx_v_max_compressed_size = (__pyx_v_uncompressed_size + 0x116);
+
+    /* "xpress9.pyx":99
+ * 
+ *         # Calculate max compressed size if not provided
+ *         if max_compressed_size <= 0:             # <<<<<<<<<<<<<<
+ *             # Worst case scenario: compression adds overhead
+ *             max_compressed_size = uncompressed_size + 278
+ */
+  }
+
+  /* "xpress9.pyx":103
+ *             max_compressed_size = uncompressed_size + 278
+ * 
  *         cdef BYTE* uncompressed_ptr = <BYTE*>uncompressed_data             # <<<<<<<<<<<<<<
  *         cdef BYTE* compressed_ptr = <BYTE*>malloc(max_compressed_size)
  *         if not compressed_ptr:
  */
   if (unlikely(__pyx_v_uncompressed_data == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "expected bytes, NoneType found");
-    __PYX_ERR(0, 53, __pyx_L1_error)
+    __PYX_ERR(0, 103, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyBytes_AsWritableUString(__pyx_v_uncompressed_data); if (unlikely((!__pyx_t_2) && PyErr_Occurred())) __PYX_ERR(0, 53, __pyx_L1_error)
-  __pyx_v_uncompressed_ptr = ((BYTE *)__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyBytes_AsWritableUString(__pyx_v_uncompressed_data); if (unlikely((!__pyx_t_3) && PyErr_Occurred())) __PYX_ERR(0, 103, __pyx_L1_error)
+  __pyx_v_uncompressed_ptr = ((BYTE *)__pyx_t_3);
 
-  /* "xpress9.pyx":54
- *         cdef int uncompressed_size = len(uncompressed_data)
+  /* "xpress9.pyx":104
+ * 
  *         cdef BYTE* uncompressed_ptr = <BYTE*>uncompressed_data
  *         cdef BYTE* compressed_ptr = <BYTE*>malloc(max_compressed_size)             # <<<<<<<<<<<<<<
  *         if not compressed_ptr:
@@ -3360,30 +3722,30 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_6compress(struct __pyx_obj_7xpress9_
  */
   __pyx_v_compressed_ptr = ((BYTE *)malloc(__pyx_v_max_compressed_size));
 
-  /* "xpress9.pyx":55
+  /* "xpress9.pyx":105
  *         cdef BYTE* uncompressed_ptr = <BYTE*>uncompressed_data
  *         cdef BYTE* compressed_ptr = <BYTE*>malloc(max_compressed_size)
  *         if not compressed_ptr:             # <<<<<<<<<<<<<<
  *             raise MemoryError("Failed to allocate output buffer for compression.")
  * 
  */
-  __pyx_t_3 = (!(__pyx_v_compressed_ptr != 0));
-  if (unlikely(__pyx_t_3)) {
+  __pyx_t_2 = (!(__pyx_v_compressed_ptr != 0));
+  if (unlikely(__pyx_t_2)) {
 
-    /* "xpress9.pyx":56
+    /* "xpress9.pyx":106
  *         cdef BYTE* compressed_ptr = <BYTE*>malloc(max_compressed_size)
  *         if not compressed_ptr:
  *             raise MemoryError("Failed to allocate output buffer for compression.")             # <<<<<<<<<<<<<<
  * 
  *         cdef UINT compressed_size
  */
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 56, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 106, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_Raise(__pyx_t_4, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __PYX_ERR(0, 56, __pyx_L1_error)
+    __PYX_ERR(0, 106, __pyx_L1_error)
 
-    /* "xpress9.pyx":55
+    /* "xpress9.pyx":105
  *         cdef BYTE* uncompressed_ptr = <BYTE*>uncompressed_data
  *         cdef BYTE* compressed_ptr = <BYTE*>malloc(max_compressed_size)
  *         if not compressed_ptr:             # <<<<<<<<<<<<<<
@@ -3392,7 +3754,7 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_6compress(struct __pyx_obj_7xpress9_
  */
   }
 
-  /* "xpress9.pyx":59
+  /* "xpress9.pyx":109
  * 
  *         cdef UINT compressed_size
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -3408,7 +3770,7 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_6compress(struct __pyx_obj_7xpress9_
       #endif
       /*try:*/ {
 
-        /* "xpress9.pyx":60
+        /* "xpress9.pyx":110
  *         cdef UINT compressed_size
  *         with nogil:
  *             compressed_size = Compress(self.context, uncompressed_ptr, uncompressed_size, compressed_ptr, max_compressed_size)             # <<<<<<<<<<<<<<
@@ -3418,7 +3780,7 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_6compress(struct __pyx_obj_7xpress9_
         __pyx_v_compressed_size = Compress(__pyx_v_self->context, __pyx_v_uncompressed_ptr, __pyx_v_uncompressed_size, __pyx_v_compressed_ptr, __pyx_v_max_compressed_size);
       }
 
-      /* "xpress9.pyx":59
+      /* "xpress9.pyx":109
  * 
  *         cdef UINT compressed_size
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -3431,109 +3793,69 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_6compress(struct __pyx_obj_7xpress9_
           __Pyx_FastGIL_Forget();
           Py_BLOCK_THREADS
           #endif
-          goto __pyx_L6;
+          goto __pyx_L7;
         }
-        __pyx_L6:;
+        __pyx_L7:;
       }
   }
 
-  /* "xpress9.pyx":64
+  /* "xpress9.pyx":113
+ * 
  *         # Check for error conditions.
- *         # Here we consider a return value of 0 or a size that is not smaller than the original as a failure.
- *         if compressed_size == 0 or compressed_size >= uncompressed_size:             # <<<<<<<<<<<<<<
+ *         if compressed_size == 0:             # <<<<<<<<<<<<<<
  *             free(compressed_ptr)
- *             raise ValueError(f"Compression failed or not effective: uncompressed size {uncompressed_size}, compressed size {compressed_size}")
+ *             raise ValueError("Compression failed: buffer may be too small or internal error occurred")
  */
-  __pyx_t_5 = (__pyx_v_compressed_size == 0);
-  if (!__pyx_t_5) {
-  } else {
-    __pyx_t_3 = __pyx_t_5;
-    goto __pyx_L8_bool_binop_done;
-  }
-  __pyx_t_5 = (__pyx_v_compressed_size >= __pyx_v_uncompressed_size);
-  __pyx_t_3 = __pyx_t_5;
-  __pyx_L8_bool_binop_done:;
-  if (unlikely(__pyx_t_3)) {
+  __pyx_t_2 = (__pyx_v_compressed_size == 0);
+  if (unlikely(__pyx_t_2)) {
 
-    /* "xpress9.pyx":65
- *         # Here we consider a return value of 0 or a size that is not smaller than the original as a failure.
- *         if compressed_size == 0 or compressed_size >= uncompressed_size:
+    /* "xpress9.pyx":114
+ *         # Check for error conditions.
+ *         if compressed_size == 0:
  *             free(compressed_ptr)             # <<<<<<<<<<<<<<
- *             raise ValueError(f"Compression failed or not effective: uncompressed size {uncompressed_size}, compressed size {compressed_size}")
+ *             raise ValueError("Compression failed: buffer may be too small or internal error occurred")
  * 
  */
     free(__pyx_v_compressed_ptr);
 
-    /* "xpress9.pyx":66
- *         if compressed_size == 0 or compressed_size >= uncompressed_size:
+    /* "xpress9.pyx":115
+ *         if compressed_size == 0:
  *             free(compressed_ptr)
- *             raise ValueError(f"Compression failed or not effective: uncompressed size {uncompressed_size}, compressed size {compressed_size}")             # <<<<<<<<<<<<<<
+ *             raise ValueError("Compression failed: buffer may be too small or internal error occurred")             # <<<<<<<<<<<<<<
  * 
  *         compressed_data = bytes(compressed_ptr[:compressed_size])
  */
-    __pyx_t_4 = PyTuple_New(4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 115, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_1 = 0;
-    __pyx_t_6 = 127;
-    __Pyx_INCREF(__pyx_kp_u_Compression_failed_or_not_effect);
-    __pyx_t_1 += 55;
-    __Pyx_GIVEREF(__pyx_kp_u_Compression_failed_or_not_effect);
-    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_kp_u_Compression_failed_or_not_effect);
-    __pyx_t_7 = __Pyx_PyUnicode_From_int(__pyx_v_uncompressed_size, 0, ' ', 'd'); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 66, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_1 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_7);
-    __Pyx_GIVEREF(__pyx_t_7);
-    PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_7);
-    __pyx_t_7 = 0;
-    __Pyx_INCREF(__pyx_kp_u_compressed_size);
-    __pyx_t_1 += 18;
-    __Pyx_GIVEREF(__pyx_kp_u_compressed_size);
-    PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_kp_u_compressed_size);
-    __pyx_t_7 = __Pyx_PyInt_From_UINT(__pyx_v_compressed_size); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 66, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_8 = __Pyx_PyObject_FormatSimple(__pyx_t_7, __pyx_empty_unicode); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 66, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_8);
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_6 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_8) > __pyx_t_6) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_8) : __pyx_t_6;
-    __pyx_t_1 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_8);
-    __Pyx_GIVEREF(__pyx_t_8);
-    PyTuple_SET_ITEM(__pyx_t_4, 3, __pyx_t_8);
-    __pyx_t_8 = 0;
-    __pyx_t_8 = __Pyx_PyUnicode_Join(__pyx_t_4, 4, __pyx_t_1, __pyx_t_6); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 66, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_8);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_8); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_Raise(__pyx_t_4, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __PYX_ERR(0, 66, __pyx_L1_error)
+    __PYX_ERR(0, 115, __pyx_L1_error)
 
-    /* "xpress9.pyx":64
+    /* "xpress9.pyx":113
+ * 
  *         # Check for error conditions.
- *         # Here we consider a return value of 0 or a size that is not smaller than the original as a failure.
- *         if compressed_size == 0 or compressed_size >= uncompressed_size:             # <<<<<<<<<<<<<<
+ *         if compressed_size == 0:             # <<<<<<<<<<<<<<
  *             free(compressed_ptr)
- *             raise ValueError(f"Compression failed or not effective: uncompressed size {uncompressed_size}, compressed size {compressed_size}")
+ *             raise ValueError("Compression failed: buffer may be too small or internal error occurred")
  */
   }
 
-  /* "xpress9.pyx":68
- *             raise ValueError(f"Compression failed or not effective: uncompressed size {uncompressed_size}, compressed size {compressed_size}")
+  /* "xpress9.pyx":117
+ *             raise ValueError("Compression failed: buffer may be too small or internal error occurred")
  * 
  *         compressed_data = bytes(compressed_ptr[:compressed_size])             # <<<<<<<<<<<<<<
  *         free(compressed_ptr)
  *         return compressed_data
  */
-  __pyx_t_4 = __Pyx_PyBytes_FromStringAndSize(((const char*)__pyx_v_compressed_ptr) + 0, __pyx_v_compressed_size - 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyBytes_FromStringAndSize(((const char*)__pyx_v_compressed_ptr) + 0, __pyx_v_compressed_size - 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 117, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_8 = __Pyx_PyObject_CallOneArg(((PyObject *)(&PyBytes_Type)), __pyx_t_4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 68, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_8);
+  __pyx_t_5 = __Pyx_PyObject_CallOneArg(((PyObject *)(&PyBytes_Type)), __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 117, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_v_compressed_data = ((PyObject*)__pyx_t_8);
-  __pyx_t_8 = 0;
+  __pyx_v_compressed_data = ((PyObject*)__pyx_t_5);
+  __pyx_t_5 = 0;
 
-  /* "xpress9.pyx":69
+  /* "xpress9.pyx":118
  * 
  *         compressed_data = bytes(compressed_ptr[:compressed_size])
  *         free(compressed_ptr)             # <<<<<<<<<<<<<<
@@ -3541,7 +3863,7 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_6compress(struct __pyx_obj_7xpress9_
  */
   free(__pyx_v_compressed_ptr);
 
-  /* "xpress9.pyx":70
+  /* "xpress9.pyx":119
  *         compressed_data = bytes(compressed_ptr[:compressed_size])
  *         free(compressed_ptr)
  *         return compressed_data             # <<<<<<<<<<<<<<
@@ -3551,10 +3873,10 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_6compress(struct __pyx_obj_7xpress9_
   __pyx_r = __pyx_v_compressed_data;
   goto __pyx_L0;
 
-  /* "xpress9.pyx":45
+  /* "xpress9.pyx":81
  *         return decompressed_data
  * 
- *     def compress(self, bytes uncompressed_data, int max_compressed_size):             # <<<<<<<<<<<<<<
+ *     def compress(self, bytes uncompressed_data, int max_compressed_size=0):             # <<<<<<<<<<<<<<
  *         """
  *         Compresses the given uncompressed data.
  */
@@ -3562,8 +3884,7 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_6compress(struct __pyx_obj_7xpress9_
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_XDECREF(__pyx_t_8);
+  __Pyx_XDECREF(__pyx_t_5);
   __Pyx_AddTraceback("xpress9.Xpress9.compress", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -3787,7 +4108,7 @@ static PyObject *__pyx_pf_7xpress9_7Xpress9_10__setstate_cython__(CYTHON_UNUSED 
   return __pyx_r;
 }
 
-static PyObject *__pyx_tp_new_7xpress9_Xpress9(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_7xpress9_Xpress9(PyTypeObject *t, PyObject *a, PyObject *k) {
   PyObject *o;
   #if CYTHON_COMPILING_IN_LIMITED_API
   allocfunc alloc_func = (allocfunc)PyType_GetSlot(t, Py_tp_alloc);
@@ -3800,7 +4121,7 @@ static PyObject *__pyx_tp_new_7xpress9_Xpress9(PyTypeObject *t, CYTHON_UNUSED Py
   }
   if (unlikely(!o)) return 0;
   #endif
-  if (unlikely(__pyx_pw_7xpress9_7Xpress9_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
+  if (unlikely(__pyx_pw_7xpress9_7Xpress9_1__cinit__(o, a, k) < 0)) goto bad;
   return o;
   bad:
   Py_DECREF(o); o = 0;
@@ -3833,6 +4154,10 @@ static void __pyx_tp_dealloc_7xpress9_Xpress9(PyObject *o) {
   #endif
 }
 
+static PyObject *__pyx_getprop_7xpress9_7Xpress9_compression_level(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7xpress9_7Xpress9_17compression_level_1__get__(o);
+}
+
 static PyMethodDef __pyx_methods_7xpress9_Xpress9[] = {
   {"decompress", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_7xpress9_7Xpress9_5decompress, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_7xpress9_7Xpress9_4decompress},
   {"compress", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_7xpress9_7Xpress9_7compress, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_7xpress9_7Xpress9_6compress},
@@ -3840,11 +4165,17 @@ static PyMethodDef __pyx_methods_7xpress9_Xpress9[] = {
   {"__setstate_cython__", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_7xpress9_7Xpress9_11__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {0, 0, 0, 0}
 };
+
+static struct PyGetSetDef __pyx_getsets_7xpress9_Xpress9[] = {
+  {(char *)"compression_level", __pyx_getprop_7xpress9_7Xpress9_compression_level, 0, (char *)PyDoc_STR(" Get the current compression level "), 0},
+  {0, 0, 0, 0, 0}
+};
 #if CYTHON_USE_TYPE_SPECS
 static PyType_Slot __pyx_type_7xpress9_Xpress9_slots[] = {
   {Py_tp_dealloc, (void *)__pyx_tp_dealloc_7xpress9_Xpress9},
-  {Py_tp_doc, (void *)PyDoc_STR(" Python Wrapper for Xpress9 C Library ")},
+  {Py_tp_doc, (void *)PyDoc_STR(" Python Wrapper for Xpress9 C Library with compression level support ")},
   {Py_tp_methods, (void *)__pyx_methods_7xpress9_Xpress9},
+  {Py_tp_getset, (void *)__pyx_getsets_7xpress9_Xpress9},
   {Py_tp_new, (void *)__pyx_tp_new_7xpress9_Xpress9},
   {0, 0},
 };
@@ -3888,7 +4219,7 @@ static PyTypeObject __pyx_type_7xpress9_Xpress9 = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
-  PyDoc_STR(" Python Wrapper for Xpress9 C Library "), /*tp_doc*/
+  PyDoc_STR(" Python Wrapper for Xpress9 C Library with compression level support "), /*tp_doc*/
   0, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -3897,7 +4228,7 @@ static PyTypeObject __pyx_type_7xpress9_Xpress9 = {
   0, /*tp_iternext*/
   __pyx_methods_7xpress9_Xpress9, /*tp_methods*/
   0, /*tp_members*/
-  0, /*tp_getset*/
+  __pyx_getsets_7xpress9_Xpress9, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
@@ -3958,11 +4289,13 @@ static PyMethodDef __pyx_methods[] = {
 
 static int __Pyx_CreateStringTabAndInitStrings(void) {
   __Pyx_StringTabEntry __pyx_string_tab[] = {
-    {&__pyx_kp_u_Compression_failed_or_not_effect, __pyx_k_Compression_failed_or_not_effect, sizeof(__pyx_k_Compression_failed_or_not_effect), 0, 1, 0, 0},
-    {&__pyx_kp_u_Decompression_failed_Expected, __pyx_k_Decompression_failed_Expected, sizeof(__pyx_k_Decompression_failed_Expected), 0, 1, 0, 0},
+    {&__pyx_kp_u_, __pyx_k_, sizeof(__pyx_k_), 0, 1, 0, 0},
+    {&__pyx_kp_s_Compression_failed_buffer_may_be, __pyx_k_Compression_failed_buffer_may_be, sizeof(__pyx_k_Compression_failed_buffer_may_be), 0, 0, 1, 0},
+    {&__pyx_kp_u_Decompression_failed_Got, __pyx_k_Decompression_failed_Got, sizeof(__pyx_k_Decompression_failed_Got), 0, 1, 0, 0},
+    {&__pyx_kp_u_Decompression_size_mismatch_Expe, __pyx_k_Decompression_size_mismatch_Expe, sizeof(__pyx_k_Decompression_size_mismatch_Expe), 0, 1, 0, 0},
     {&__pyx_kp_s_Failed_to_allocate_output_buffer, __pyx_k_Failed_to_allocate_output_buffer, sizeof(__pyx_k_Failed_to_allocate_output_buffer), 0, 0, 1, 0},
     {&__pyx_kp_s_Failed_to_allocate_output_buffer_2, __pyx_k_Failed_to_allocate_output_buffer_2, sizeof(__pyx_k_Failed_to_allocate_output_buffer_2), 0, 0, 1, 0},
-    {&__pyx_kp_s_Failed_to_initialize_Xpress9, __pyx_k_Failed_to_initialize_Xpress9, sizeof(__pyx_k_Failed_to_initialize_Xpress9), 0, 0, 1, 0},
+    {&__pyx_kp_u_Failed_to_initialize_XPress_with, __pyx_k_Failed_to_initialize_XPress_with, sizeof(__pyx_k_Failed_to_initialize_XPress_with), 0, 1, 0, 0},
     {&__pyx_n_s_MemoryError, __pyx_k_MemoryError, sizeof(__pyx_k_MemoryError), 0, 0, 1, 1},
     {&__pyx_n_s_TypeError, __pyx_k_TypeError, sizeof(__pyx_k_TypeError), 0, 0, 1, 1},
     {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
@@ -3971,20 +4304,23 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_Xpress9___setstate_cython, __pyx_k_Xpress9___setstate_cython, sizeof(__pyx_k_Xpress9___setstate_cython), 0, 0, 1, 1},
     {&__pyx_n_s_Xpress9_compress, __pyx_k_Xpress9_compress, sizeof(__pyx_k_Xpress9_compress), 0, 0, 1, 1},
     {&__pyx_n_s_Xpress9_decompress, __pyx_k_Xpress9_decompress, sizeof(__pyx_k_Xpress9_decompress), 0, 0, 1, 1},
-    {&__pyx_n_s__12, __pyx_k__12, sizeof(__pyx_k__12), 0, 0, 1, 1},
+    {&__pyx_n_s__14, __pyx_k__14, sizeof(__pyx_k__14), 0, 0, 1, 1},
     {&__pyx_n_s_asyncio_coroutines, __pyx_k_asyncio_coroutines, sizeof(__pyx_k_asyncio_coroutines), 0, 0, 1, 1},
+    {&__pyx_kp_u_bytes, __pyx_k_bytes, sizeof(__pyx_k_bytes), 0, 1, 0, 0},
     {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
     {&__pyx_n_s_compress, __pyx_k_compress, sizeof(__pyx_k_compress), 0, 0, 1, 1},
     {&__pyx_n_s_compressed_data, __pyx_k_compressed_data, sizeof(__pyx_k_compressed_data), 0, 0, 1, 1},
     {&__pyx_n_s_compressed_ptr, __pyx_k_compressed_ptr, sizeof(__pyx_k_compressed_ptr), 0, 0, 1, 1},
-    {&__pyx_kp_u_compressed_size, __pyx_k_compressed_size, sizeof(__pyx_k_compressed_size), 0, 1, 0, 0},
-    {&__pyx_n_s_compressed_size_2, __pyx_k_compressed_size_2, sizeof(__pyx_k_compressed_size_2), 0, 0, 1, 1},
+    {&__pyx_n_s_compressed_size, __pyx_k_compressed_size, sizeof(__pyx_k_compressed_size), 0, 0, 1, 1},
+    {&__pyx_n_s_compression_level, __pyx_k_compression_level, sizeof(__pyx_k_compression_level), 0, 0, 1, 1},
+    {&__pyx_n_s_decoder, __pyx_k_decoder, sizeof(__pyx_k_decoder), 0, 0, 1, 1},
     {&__pyx_n_s_decompress, __pyx_k_decompress, sizeof(__pyx_k_decompress), 0, 0, 1, 1},
     {&__pyx_n_s_decompressed_data, __pyx_k_decompressed_data, sizeof(__pyx_k_decompressed_data), 0, 0, 1, 1},
     {&__pyx_n_s_decompressed_ptr, __pyx_k_decompressed_ptr, sizeof(__pyx_k_decompressed_ptr), 0, 0, 1, 1},
     {&__pyx_n_s_decompressed_size, __pyx_k_decompressed_size, sizeof(__pyx_k_decompressed_size), 0, 0, 1, 1},
     {&__pyx_kp_u_disable, __pyx_k_disable, sizeof(__pyx_k_disable), 0, 1, 0, 0},
     {&__pyx_kp_u_enable, __pyx_k_enable, sizeof(__pyx_k_enable), 0, 1, 0, 0},
+    {&__pyx_n_s_encoder, __pyx_k_encoder, sizeof(__pyx_k_encoder), 0, 0, 1, 1},
     {&__pyx_kp_u_gc, __pyx_k_gc, sizeof(__pyx_k_gc), 0, 1, 0, 0},
     {&__pyx_n_s_getstate, __pyx_k_getstate, sizeof(__pyx_k_getstate), 0, 0, 1, 1},
     {&__pyx_kp_u_got, __pyx_k_got, sizeof(__pyx_k_got), 0, 1, 0, 0},
@@ -4014,8 +4350,8 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
 }
 /* #### Code section: cached_builtins ### */
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 17, __pyx_L1_error)
-  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 33, __pyx_L1_error)
+  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 69, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
@@ -4027,72 +4363,75 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "xpress9.pyx":17
- *         self.context = Initialize()
- *         if self.context is NULL:
- *             raise MemoryError("Failed to initialize Xpress9.")             # <<<<<<<<<<<<<<
- * 
- *     def __dealloc__(self):
- */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_Failed_to_initialize_Xpress9); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 17, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple_);
-  __Pyx_GIVEREF(__pyx_tuple_);
-
-  /* "xpress9.pyx":31
+  /* "xpress9.pyx":61
  *         cdef BYTE* decompressed_ptr = <BYTE*>malloc(uncompressed_size)
  *         if not decompressed_ptr:
  *             raise MemoryError("Failed to allocate output buffer.")             # <<<<<<<<<<<<<<
  * 
  *         cdef UINT decompressed_size
  */
-  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_output_buffer); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_output_buffer); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
-  /* "xpress9.pyx":56
+  /* "xpress9.pyx":106
  *         cdef BYTE* compressed_ptr = <BYTE*>malloc(max_compressed_size)
  *         if not compressed_ptr:
  *             raise MemoryError("Failed to allocate output buffer for compression.")             # <<<<<<<<<<<<<<
  * 
  *         cdef UINT compressed_size
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_output_buffer_2); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 56, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_output_buffer_2); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 106, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "xpress9.pyx":25
- *             self.context = NULL
+  /* "xpress9.pyx":115
+ *         if compressed_size == 0:
+ *             free(compressed_ptr)
+ *             raise ValueError("Compression failed: buffer may be too small or internal error occurred")             # <<<<<<<<<<<<<<
  * 
- *     def decompress(self, bytes compressed_data, int uncompressed_size):             # <<<<<<<<<<<<<<
- *         """ Decompresses the given data. Releases GIL for performance. """
- *         cdef int compressed_size = len(compressed_data)
+ *         compressed_data = bytes(compressed_ptr[:compressed_size])
  */
-  __pyx_tuple__4 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_compressed_data, __pyx_n_s_uncompressed_size, __pyx_n_s_compressed_size_2, __pyx_n_s_compressed_ptr, __pyx_n_s_decompressed_ptr, __pyx_n_s_decompressed_size, __pyx_n_s_decompressed_data); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_s_Compression_failed_buffer_may_be); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 115, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
-  __pyx_codeobj__5 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_xpress9_pyx, __pyx_n_s_decompress, 25, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__5)) __PYX_ERR(0, 25, __pyx_L1_error)
 
-  /* "xpress9.pyx":45
+  /* "xpress9.pyx":46
+ *         return self._compression_level
+ * 
+ *     def decompress(self, bytes compressed_data, int uncompressed_size):             # <<<<<<<<<<<<<<
+ *         """
+ *         Decompresses the given data. Releases GIL for performance.
+ */
+  __pyx_tuple__5 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_compressed_data, __pyx_n_s_uncompressed_size, __pyx_n_s_compressed_size, __pyx_n_s_compressed_ptr, __pyx_n_s_decompressed_ptr, __pyx_n_s_decompressed_size, __pyx_n_s_decompressed_data); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__5);
+  __Pyx_GIVEREF(__pyx_tuple__5);
+  __pyx_codeobj__6 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__5, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_xpress9_pyx, __pyx_n_s_decompress, 46, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__6)) __PYX_ERR(0, 46, __pyx_L1_error)
+
+  /* "xpress9.pyx":81
  *         return decompressed_data
  * 
- *     def compress(self, bytes uncompressed_data, int max_compressed_size):             # <<<<<<<<<<<<<<
+ *     def compress(self, bytes uncompressed_data, int max_compressed_size=0):             # <<<<<<<<<<<<<<
  *         """
  *         Compresses the given uncompressed data.
  */
-  __pyx_tuple__6 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_uncompressed_data, __pyx_n_s_max_compressed_size, __pyx_n_s_uncompressed_size, __pyx_n_s_uncompressed_ptr, __pyx_n_s_compressed_ptr, __pyx_n_s_compressed_size_2, __pyx_n_s_compressed_data); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(0, 45, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__6);
-  __Pyx_GIVEREF(__pyx_tuple__6);
-  __pyx_codeobj__7 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__6, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_xpress9_pyx, __pyx_n_s_compress, 45, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__7)) __PYX_ERR(0, 45, __pyx_L1_error)
+  __pyx_tuple__7 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_uncompressed_data, __pyx_n_s_max_compressed_size, __pyx_n_s_uncompressed_size, __pyx_n_s_uncompressed_ptr, __pyx_n_s_compressed_ptr, __pyx_n_s_compressed_size, __pyx_n_s_compressed_data); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__7);
+  __Pyx_GIVEREF(__pyx_tuple__7);
+  __pyx_codeobj__8 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__7, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_xpress9_pyx, __pyx_n_s_compress, 81, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__8)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_int_0); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__9);
+  __Pyx_GIVEREF(__pyx_tuple__9);
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__8);
-  __Pyx_GIVEREF(__pyx_tuple__8);
-  __pyx_codeobj__9 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__8, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__9)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_tuple__10 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__10);
+  __Pyx_GIVEREF(__pyx_tuple__10);
+  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(1, 1, __pyx_L1_error)
 
   /* "(tree fragment)":3
  * def __reduce_cython__(self):
@@ -4100,10 +4439,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  */
-  __pyx_tuple__10 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(1, 3, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__10);
-  __Pyx_GIVEREF(__pyx_tuple__10);
-  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_tuple__12 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__12);
+  __Pyx_GIVEREF(__pyx_tuple__12);
+  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -4114,6 +4453,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
 static CYTHON_SMALL_CODE int __Pyx_InitConstants(void) {
   if (__Pyx_CreateStringTabAndInitStrings() < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  __pyx_int_0 = PyInt_FromLong(0); if (unlikely(!__pyx_int_0)) __PYX_ERR(0, 1, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -4496,29 +4836,30 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "xpress9.pyx":25
- *             self.context = NULL
+  /* "xpress9.pyx":46
+ *         return self._compression_level
  * 
  *     def decompress(self, bytes compressed_data, int uncompressed_size):             # <<<<<<<<<<<<<<
- *         """ Decompresses the given data. Releases GIL for performance. """
- *         cdef int compressed_size = len(compressed_data)
+ *         """
+ *         Decompresses the given data. Releases GIL for performance.
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_7xpress9_7Xpress9_5decompress, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Xpress9_decompress, NULL, __pyx_n_s_xpress9, __pyx_d, ((PyObject *)__pyx_codeobj__5)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_7xpress9_7Xpress9_5decompress, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Xpress9_decompress, NULL, __pyx_n_s_xpress9, __pyx_d, ((PyObject *)__pyx_codeobj__6)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_7xpress9_Xpress9, __pyx_n_s_decompress, __pyx_t_2) < 0) __PYX_ERR(0, 25, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_7xpress9_Xpress9, __pyx_n_s_decompress, __pyx_t_2) < 0) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_7xpress9_Xpress9);
 
-  /* "xpress9.pyx":45
+  /* "xpress9.pyx":81
  *         return decompressed_data
  * 
- *     def compress(self, bytes uncompressed_data, int max_compressed_size):             # <<<<<<<<<<<<<<
+ *     def compress(self, bytes uncompressed_data, int max_compressed_size=0):             # <<<<<<<<<<<<<<
  *         """
  *         Compresses the given uncompressed data.
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_7xpress9_7Xpress9_7compress, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Xpress9_compress, NULL, __pyx_n_s_xpress9, __pyx_d, ((PyObject *)__pyx_codeobj__7)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 45, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_7xpress9_7Xpress9_7compress, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Xpress9_compress, NULL, __pyx_n_s_xpress9, __pyx_d, ((PyObject *)__pyx_codeobj__8)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_7xpress9_Xpress9, __pyx_n_s_compress, __pyx_t_2) < 0) __PYX_ERR(0, 45, __pyx_L1_error)
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_tuple__9);
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_7xpress9_Xpress9, __pyx_n_s_compress, __pyx_t_2) < 0) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_7xpress9_Xpress9);
 
@@ -4527,7 +4868,7 @@ if (!__Pyx_RefNanny) {
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_7xpress9_7Xpress9_9__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Xpress9___reduce_cython, NULL, __pyx_n_s_xpress9, __pyx_d, ((PyObject *)__pyx_codeobj__9)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_7xpress9_7Xpress9_9__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Xpress9___reduce_cython, NULL, __pyx_n_s_xpress9, __pyx_d, ((PyObject *)__pyx_codeobj__11)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -4538,7 +4879,7 @@ if (!__Pyx_RefNanny) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_7xpress9_7Xpress9_11__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Xpress9___setstate_cython, NULL, __pyx_n_s_xpress9, __pyx_d, ((PyObject *)__pyx_codeobj__11)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_7xpress9_7Xpress9_11__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Xpress9___setstate_cython, NULL, __pyx_n_s_xpress9, __pyx_d, ((PyObject *)__pyx_codeobj__13)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -5005,292 +5346,6 @@ bad:
 #endif
 #endif
 
-/* RaiseArgTupleInvalid */
-static void __Pyx_RaiseArgtupleInvalid(
-    const char* func_name,
-    int exact,
-    Py_ssize_t num_min,
-    Py_ssize_t num_max,
-    Py_ssize_t num_found)
-{
-    Py_ssize_t num_expected;
-    const char *more_or_less;
-    if (num_found < num_min) {
-        num_expected = num_min;
-        more_or_less = "at least";
-    } else {
-        num_expected = num_max;
-        more_or_less = "at most";
-    }
-    if (exact) {
-        more_or_less = "exactly";
-    }
-    PyErr_Format(PyExc_TypeError,
-                 "%.200s() takes %.8s %" CYTHON_FORMAT_SSIZE_T "d positional argument%.1s (%" CYTHON_FORMAT_SSIZE_T "d given)",
-                 func_name, more_or_less, num_expected,
-                 (num_expected == 1) ? "" : "s", num_found);
-}
-
-/* KeywordStringCheck */
-static int __Pyx_CheckKeywordStrings(
-    PyObject *kw,
-    const char* function_name,
-    int kw_allowed)
-{
-    PyObject* key = 0;
-    Py_ssize_t pos = 0;
-#if CYTHON_COMPILING_IN_PYPY
-    if (!kw_allowed && PyDict_Next(kw, &pos, &key, 0))
-        goto invalid_keyword;
-    return 1;
-#else
-    if (CYTHON_METH_FASTCALL && likely(PyTuple_Check(kw))) {
-        Py_ssize_t kwsize;
-#if CYTHON_ASSUME_SAFE_MACROS
-        kwsize = PyTuple_GET_SIZE(kw);
-#else
-        kwsize = PyTuple_Size(kw);
-        if (kwsize < 0) return 0;
-#endif
-        if (unlikely(kwsize == 0))
-            return 1;
-        if (!kw_allowed) {
-#if CYTHON_ASSUME_SAFE_MACROS
-            key = PyTuple_GET_ITEM(kw, 0);
-#else
-            key = PyTuple_GetItem(kw, pos);
-            if (!key) return 0;
-#endif
-            goto invalid_keyword;
-        }
-#if PY_VERSION_HEX < 0x03090000
-        for (pos = 0; pos < kwsize; pos++) {
-#if CYTHON_ASSUME_SAFE_MACROS
-            key = PyTuple_GET_ITEM(kw, pos);
-#else
-            key = PyTuple_GetItem(kw, pos);
-            if (!key) return 0;
-#endif
-            if (unlikely(!PyUnicode_Check(key)))
-                goto invalid_keyword_type;
-        }
-#endif
-        return 1;
-    }
-    while (PyDict_Next(kw, &pos, &key, 0)) {
-        #if PY_MAJOR_VERSION < 3
-        if (unlikely(!PyString_Check(key)))
-        #endif
-            if (unlikely(!PyUnicode_Check(key)))
-                goto invalid_keyword_type;
-    }
-    if (!kw_allowed && unlikely(key))
-        goto invalid_keyword;
-    return 1;
-invalid_keyword_type:
-    PyErr_Format(PyExc_TypeError,
-        "%.200s() keywords must be strings", function_name);
-    return 0;
-#endif
-invalid_keyword:
-    #if PY_MAJOR_VERSION < 3
-    PyErr_Format(PyExc_TypeError,
-        "%.200s() got an unexpected keyword argument '%.200s'",
-        function_name, PyString_AsString(key));
-    #else
-    PyErr_Format(PyExc_TypeError,
-        "%s() got an unexpected keyword argument '%U'",
-        function_name, key);
-    #endif
-    return 0;
-}
-
-/* PyObjectCall */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw) {
-    PyObject *result;
-    ternaryfunc call = Py_TYPE(func)->tp_call;
-    if (unlikely(!call))
-        return PyObject_Call(func, arg, kw);
-    #if PY_MAJOR_VERSION < 3
-    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
-        return NULL;
-    #else
-    if (unlikely(Py_EnterRecursiveCall(" while calling a Python object")))
-        return NULL;
-    #endif
-    result = (*call)(func, arg, kw);
-    Py_LeaveRecursiveCall();
-    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
-        PyErr_SetString(
-            PyExc_SystemError,
-            "NULL result without error in PyObject_Call");
-    }
-    return result;
-}
-#endif
-
-/* RaiseException */
-#if PY_MAJOR_VERSION < 3
-static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause) {
-    __Pyx_PyThreadState_declare
-    CYTHON_UNUSED_VAR(cause);
-    Py_XINCREF(type);
-    if (!value || value == Py_None)
-        value = NULL;
-    else
-        Py_INCREF(value);
-    if (!tb || tb == Py_None)
-        tb = NULL;
-    else {
-        Py_INCREF(tb);
-        if (!PyTraceBack_Check(tb)) {
-            PyErr_SetString(PyExc_TypeError,
-                "raise: arg 3 must be a traceback or None");
-            goto raise_error;
-        }
-    }
-    if (PyType_Check(type)) {
-#if CYTHON_COMPILING_IN_PYPY
-        if (!value) {
-            Py_INCREF(Py_None);
-            value = Py_None;
-        }
-#endif
-        PyErr_NormalizeException(&type, &value, &tb);
-    } else {
-        if (value) {
-            PyErr_SetString(PyExc_TypeError,
-                "instance exception may not have a separate value");
-            goto raise_error;
-        }
-        value = type;
-        type = (PyObject*) Py_TYPE(type);
-        Py_INCREF(type);
-        if (!PyType_IsSubtype((PyTypeObject *)type, (PyTypeObject *)PyExc_BaseException)) {
-            PyErr_SetString(PyExc_TypeError,
-                "raise: exception class must be a subclass of BaseException");
-            goto raise_error;
-        }
-    }
-    __Pyx_PyThreadState_assign
-    __Pyx_ErrRestore(type, value, tb);
-    return;
-raise_error:
-    Py_XDECREF(value);
-    Py_XDECREF(type);
-    Py_XDECREF(tb);
-    return;
-}
-#else
-static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause) {
-    PyObject* owned_instance = NULL;
-    if (tb == Py_None) {
-        tb = 0;
-    } else if (tb && !PyTraceBack_Check(tb)) {
-        PyErr_SetString(PyExc_TypeError,
-            "raise: arg 3 must be a traceback or None");
-        goto bad;
-    }
-    if (value == Py_None)
-        value = 0;
-    if (PyExceptionInstance_Check(type)) {
-        if (value) {
-            PyErr_SetString(PyExc_TypeError,
-                "instance exception may not have a separate value");
-            goto bad;
-        }
-        value = type;
-        type = (PyObject*) Py_TYPE(value);
-    } else if (PyExceptionClass_Check(type)) {
-        PyObject *instance_class = NULL;
-        if (value && PyExceptionInstance_Check(value)) {
-            instance_class = (PyObject*) Py_TYPE(value);
-            if (instance_class != type) {
-                int is_subclass = PyObject_IsSubclass(instance_class, type);
-                if (!is_subclass) {
-                    instance_class = NULL;
-                } else if (unlikely(is_subclass == -1)) {
-                    goto bad;
-                } else {
-                    type = instance_class;
-                }
-            }
-        }
-        if (!instance_class) {
-            PyObject *args;
-            if (!value)
-                args = PyTuple_New(0);
-            else if (PyTuple_Check(value)) {
-                Py_INCREF(value);
-                args = value;
-            } else
-                args = PyTuple_Pack(1, value);
-            if (!args)
-                goto bad;
-            owned_instance = PyObject_Call(type, args, NULL);
-            Py_DECREF(args);
-            if (!owned_instance)
-                goto bad;
-            value = owned_instance;
-            if (!PyExceptionInstance_Check(value)) {
-                PyErr_Format(PyExc_TypeError,
-                             "calling %R should have returned an instance of "
-                             "BaseException, not %R",
-                             type, Py_TYPE(value));
-                goto bad;
-            }
-        }
-    } else {
-        PyErr_SetString(PyExc_TypeError,
-            "raise: exception class must be a subclass of BaseException");
-        goto bad;
-    }
-    if (cause) {
-        PyObject *fixed_cause;
-        if (cause == Py_None) {
-            fixed_cause = NULL;
-        } else if (PyExceptionClass_Check(cause)) {
-            fixed_cause = PyObject_CallObject(cause, NULL);
-            if (fixed_cause == NULL)
-                goto bad;
-        } else if (PyExceptionInstance_Check(cause)) {
-            fixed_cause = cause;
-            Py_INCREF(fixed_cause);
-        } else {
-            PyErr_SetString(PyExc_TypeError,
-                            "exception causes must derive from "
-                            "BaseException");
-            goto bad;
-        }
-        PyException_SetCause(value, fixed_cause);
-    }
-    PyErr_SetObject(type, value);
-    if (tb) {
-      #if PY_VERSION_HEX >= 0x030C00A6
-        PyException_SetTraceback(value, tb);
-      #elif CYTHON_FAST_THREAD_STATE
-        PyThreadState *tstate = __Pyx_PyThreadState_Current;
-        PyObject* tmp_tb = tstate->curexc_traceback;
-        if (tb != tmp_tb) {
-            Py_INCREF(tb);
-            tstate->curexc_traceback = tb;
-            Py_XDECREF(tmp_tb);
-        }
-#else
-        PyObject *tmp_type, *tmp_value, *tmp_tb;
-        PyErr_Fetch(&tmp_type, &tmp_value, &tmp_tb);
-        Py_INCREF(tb);
-        PyErr_Restore(tmp_type, tmp_value, tb);
-        Py_XDECREF(tmp_tb);
-#endif
-    }
-bad:
-    Py_XDECREF(owned_instance);
-    return;
-}
-#endif
-
 /* RaiseDoubleKeywords */
 static void __Pyx_RaiseDoubleKeywordsError(
     const char* func_name,
@@ -5461,31 +5516,30 @@ bad:
     return -1;
 }
 
-/* ArgTypeTest */
-static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact)
+/* RaiseArgTupleInvalid */
+static void __Pyx_RaiseArgtupleInvalid(
+    const char* func_name,
+    int exact,
+    Py_ssize_t num_min,
+    Py_ssize_t num_max,
+    Py_ssize_t num_found)
 {
-    __Pyx_TypeName type_name;
-    __Pyx_TypeName obj_type_name;
-    if (unlikely(!type)) {
-        PyErr_SetString(PyExc_SystemError, "Missing type object");
-        return 0;
+    Py_ssize_t num_expected;
+    const char *more_or_less;
+    if (num_found < num_min) {
+        num_expected = num_min;
+        more_or_less = "at least";
+    } else {
+        num_expected = num_max;
+        more_or_less = "at most";
     }
-    else if (exact) {
-        #if PY_MAJOR_VERSION == 2
-        if ((type == &PyBaseString_Type) && likely(__Pyx_PyBaseString_CheckExact(obj))) return 1;
-        #endif
+    if (exact) {
+        more_or_less = "exactly";
     }
-    else {
-        if (likely(__Pyx_TypeCheck(obj, type))) return 1;
-    }
-    type_name = __Pyx_PyType_GetName(type);
-    obj_type_name = __Pyx_PyType_GetName(Py_TYPE(obj));
     PyErr_Format(PyExc_TypeError,
-        "Argument '%.200s' has incorrect type (expected " __Pyx_FMT_TYPENAME
-        ", got " __Pyx_FMT_TYPENAME ")", name, type_name, obj_type_name);
-    __Pyx_DECREF_TypeName(type_name);
-    __Pyx_DECREF_TypeName(obj_type_name);
-    return 0;
+                 "%.200s() takes %.8s %" CYTHON_FORMAT_SSIZE_T "d positional argument%.1s (%" CYTHON_FORMAT_SSIZE_T "d given)",
+                 func_name, more_or_less, num_expected,
+                 (num_expected == 1) ? "" : "s", num_found);
 }
 
 /* CIntToDigits */
@@ -5855,6 +5909,31 @@ done:
 }
 #endif
 
+/* PyObjectCall */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw) {
+    PyObject *result;
+    ternaryfunc call = Py_TYPE(func)->tp_call;
+    if (unlikely(!call))
+        return PyObject_Call(func, arg, kw);
+    #if PY_MAJOR_VERSION < 3
+    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
+        return NULL;
+    #else
+    if (unlikely(Py_EnterRecursiveCall(" while calling a Python object")))
+        return NULL;
+    #endif
+    result = (*call)(func, arg, kw);
+    Py_LeaveRecursiveCall();
+    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
+        PyErr_SetString(
+            PyExc_SystemError,
+            "NULL result without error in PyObject_Call");
+    }
+    return result;
+}
+#endif
+
 /* PyObjectCallMethO */
 #if CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg) {
@@ -5962,6 +6041,268 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_FastCallDict(PyObject *func, PyObj
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
     PyObject *args[2] = {NULL, arg};
     return __Pyx_PyObject_FastCall(func, args+1, 1 | __Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET);
+}
+
+/* RaiseException */
+#if PY_MAJOR_VERSION < 3
+static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause) {
+    __Pyx_PyThreadState_declare
+    CYTHON_UNUSED_VAR(cause);
+    Py_XINCREF(type);
+    if (!value || value == Py_None)
+        value = NULL;
+    else
+        Py_INCREF(value);
+    if (!tb || tb == Py_None)
+        tb = NULL;
+    else {
+        Py_INCREF(tb);
+        if (!PyTraceBack_Check(tb)) {
+            PyErr_SetString(PyExc_TypeError,
+                "raise: arg 3 must be a traceback or None");
+            goto raise_error;
+        }
+    }
+    if (PyType_Check(type)) {
+#if CYTHON_COMPILING_IN_PYPY
+        if (!value) {
+            Py_INCREF(Py_None);
+            value = Py_None;
+        }
+#endif
+        PyErr_NormalizeException(&type, &value, &tb);
+    } else {
+        if (value) {
+            PyErr_SetString(PyExc_TypeError,
+                "instance exception may not have a separate value");
+            goto raise_error;
+        }
+        value = type;
+        type = (PyObject*) Py_TYPE(type);
+        Py_INCREF(type);
+        if (!PyType_IsSubtype((PyTypeObject *)type, (PyTypeObject *)PyExc_BaseException)) {
+            PyErr_SetString(PyExc_TypeError,
+                "raise: exception class must be a subclass of BaseException");
+            goto raise_error;
+        }
+    }
+    __Pyx_PyThreadState_assign
+    __Pyx_ErrRestore(type, value, tb);
+    return;
+raise_error:
+    Py_XDECREF(value);
+    Py_XDECREF(type);
+    Py_XDECREF(tb);
+    return;
+}
+#else
+static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause) {
+    PyObject* owned_instance = NULL;
+    if (tb == Py_None) {
+        tb = 0;
+    } else if (tb && !PyTraceBack_Check(tb)) {
+        PyErr_SetString(PyExc_TypeError,
+            "raise: arg 3 must be a traceback or None");
+        goto bad;
+    }
+    if (value == Py_None)
+        value = 0;
+    if (PyExceptionInstance_Check(type)) {
+        if (value) {
+            PyErr_SetString(PyExc_TypeError,
+                "instance exception may not have a separate value");
+            goto bad;
+        }
+        value = type;
+        type = (PyObject*) Py_TYPE(value);
+    } else if (PyExceptionClass_Check(type)) {
+        PyObject *instance_class = NULL;
+        if (value && PyExceptionInstance_Check(value)) {
+            instance_class = (PyObject*) Py_TYPE(value);
+            if (instance_class != type) {
+                int is_subclass = PyObject_IsSubclass(instance_class, type);
+                if (!is_subclass) {
+                    instance_class = NULL;
+                } else if (unlikely(is_subclass == -1)) {
+                    goto bad;
+                } else {
+                    type = instance_class;
+                }
+            }
+        }
+        if (!instance_class) {
+            PyObject *args;
+            if (!value)
+                args = PyTuple_New(0);
+            else if (PyTuple_Check(value)) {
+                Py_INCREF(value);
+                args = value;
+            } else
+                args = PyTuple_Pack(1, value);
+            if (!args)
+                goto bad;
+            owned_instance = PyObject_Call(type, args, NULL);
+            Py_DECREF(args);
+            if (!owned_instance)
+                goto bad;
+            value = owned_instance;
+            if (!PyExceptionInstance_Check(value)) {
+                PyErr_Format(PyExc_TypeError,
+                             "calling %R should have returned an instance of "
+                             "BaseException, not %R",
+                             type, Py_TYPE(value));
+                goto bad;
+            }
+        }
+    } else {
+        PyErr_SetString(PyExc_TypeError,
+            "raise: exception class must be a subclass of BaseException");
+        goto bad;
+    }
+    if (cause) {
+        PyObject *fixed_cause;
+        if (cause == Py_None) {
+            fixed_cause = NULL;
+        } else if (PyExceptionClass_Check(cause)) {
+            fixed_cause = PyObject_CallObject(cause, NULL);
+            if (fixed_cause == NULL)
+                goto bad;
+        } else if (PyExceptionInstance_Check(cause)) {
+            fixed_cause = cause;
+            Py_INCREF(fixed_cause);
+        } else {
+            PyErr_SetString(PyExc_TypeError,
+                            "exception causes must derive from "
+                            "BaseException");
+            goto bad;
+        }
+        PyException_SetCause(value, fixed_cause);
+    }
+    PyErr_SetObject(type, value);
+    if (tb) {
+      #if PY_VERSION_HEX >= 0x030C00A6
+        PyException_SetTraceback(value, tb);
+      #elif CYTHON_FAST_THREAD_STATE
+        PyThreadState *tstate = __Pyx_PyThreadState_Current;
+        PyObject* tmp_tb = tstate->curexc_traceback;
+        if (tb != tmp_tb) {
+            Py_INCREF(tb);
+            tstate->curexc_traceback = tb;
+            Py_XDECREF(tmp_tb);
+        }
+#else
+        PyObject *tmp_type, *tmp_value, *tmp_tb;
+        PyErr_Fetch(&tmp_type, &tmp_value, &tmp_tb);
+        Py_INCREF(tb);
+        PyErr_Restore(tmp_type, tmp_value, tb);
+        Py_XDECREF(tmp_tb);
+#endif
+    }
+bad:
+    Py_XDECREF(owned_instance);
+    return;
+}
+#endif
+
+/* ArgTypeTest */
+static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact)
+{
+    __Pyx_TypeName type_name;
+    __Pyx_TypeName obj_type_name;
+    if (unlikely(!type)) {
+        PyErr_SetString(PyExc_SystemError, "Missing type object");
+        return 0;
+    }
+    else if (exact) {
+        #if PY_MAJOR_VERSION == 2
+        if ((type == &PyBaseString_Type) && likely(__Pyx_PyBaseString_CheckExact(obj))) return 1;
+        #endif
+    }
+    else {
+        if (likely(__Pyx_TypeCheck(obj, type))) return 1;
+    }
+    type_name = __Pyx_PyType_GetName(type);
+    obj_type_name = __Pyx_PyType_GetName(Py_TYPE(obj));
+    PyErr_Format(PyExc_TypeError,
+        "Argument '%.200s' has incorrect type (expected " __Pyx_FMT_TYPENAME
+        ", got " __Pyx_FMT_TYPENAME ")", name, type_name, obj_type_name);
+    __Pyx_DECREF_TypeName(type_name);
+    __Pyx_DECREF_TypeName(obj_type_name);
+    return 0;
+}
+
+/* KeywordStringCheck */
+static int __Pyx_CheckKeywordStrings(
+    PyObject *kw,
+    const char* function_name,
+    int kw_allowed)
+{
+    PyObject* key = 0;
+    Py_ssize_t pos = 0;
+#if CYTHON_COMPILING_IN_PYPY
+    if (!kw_allowed && PyDict_Next(kw, &pos, &key, 0))
+        goto invalid_keyword;
+    return 1;
+#else
+    if (CYTHON_METH_FASTCALL && likely(PyTuple_Check(kw))) {
+        Py_ssize_t kwsize;
+#if CYTHON_ASSUME_SAFE_MACROS
+        kwsize = PyTuple_GET_SIZE(kw);
+#else
+        kwsize = PyTuple_Size(kw);
+        if (kwsize < 0) return 0;
+#endif
+        if (unlikely(kwsize == 0))
+            return 1;
+        if (!kw_allowed) {
+#if CYTHON_ASSUME_SAFE_MACROS
+            key = PyTuple_GET_ITEM(kw, 0);
+#else
+            key = PyTuple_GetItem(kw, pos);
+            if (!key) return 0;
+#endif
+            goto invalid_keyword;
+        }
+#if PY_VERSION_HEX < 0x03090000
+        for (pos = 0; pos < kwsize; pos++) {
+#if CYTHON_ASSUME_SAFE_MACROS
+            key = PyTuple_GET_ITEM(kw, pos);
+#else
+            key = PyTuple_GetItem(kw, pos);
+            if (!key) return 0;
+#endif
+            if (unlikely(!PyUnicode_Check(key)))
+                goto invalid_keyword_type;
+        }
+#endif
+        return 1;
+    }
+    while (PyDict_Next(kw, &pos, &key, 0)) {
+        #if PY_MAJOR_VERSION < 3
+        if (unlikely(!PyString_Check(key)))
+        #endif
+            if (unlikely(!PyUnicode_Check(key)))
+                goto invalid_keyword_type;
+    }
+    if (!kw_allowed && unlikely(key))
+        goto invalid_keyword;
+    return 1;
+invalid_keyword_type:
+    PyErr_Format(PyExc_TypeError,
+        "%.200s() keywords must be strings", function_name);
+    return 0;
+#endif
+invalid_keyword:
+    #if PY_MAJOR_VERSION < 3
+    PyErr_Format(PyExc_TypeError,
+        "%.200s() got an unexpected keyword argument '%.200s'",
+        function_name, PyString_AsString(key));
+    #else
+    PyErr_Format(PyExc_TypeError,
+        "%s() got an unexpected keyword argument '%U'",
+        function_name, key);
+    #endif
+    return 0;
 }
 
 /* FixUpExtensionType */
@@ -8303,6 +8644,77 @@ raise_neg_overflow:
 }
 
 /* CIntToPy */
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value) {
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+    const int neg_one = (int) -1, const_zero = (int) 0;
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+    const int is_unsigned = neg_one > const_zero;
+    if (is_unsigned) {
+        if (sizeof(int) < sizeof(long)) {
+            return PyInt_FromLong((long) value);
+        } else if (sizeof(int) <= sizeof(unsigned long)) {
+            return PyLong_FromUnsignedLong((unsigned long) value);
+#ifdef HAVE_LONG_LONG
+        } else if (sizeof(int) <= sizeof(unsigned PY_LONG_LONG)) {
+            return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG) value);
+#endif
+        }
+    } else {
+        if (sizeof(int) <= sizeof(long)) {
+            return PyInt_FromLong((long) value);
+#ifdef HAVE_LONG_LONG
+        } else if (sizeof(int) <= sizeof(PY_LONG_LONG)) {
+            return PyLong_FromLongLong((PY_LONG_LONG) value);
+#endif
+        }
+    }
+    {
+        unsigned char *bytes = (unsigned char *)&value;
+#if !CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX >= 0x030d00A4
+        if (is_unsigned) {
+            return PyLong_FromUnsignedNativeBytes(bytes, sizeof(value), -1);
+        } else {
+            return PyLong_FromNativeBytes(bytes, sizeof(value), -1);
+        }
+#elif !CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX < 0x030d0000
+        int one = 1; int little = (int)*(unsigned char *)&one;
+        return _PyLong_FromByteArray(bytes, sizeof(int),
+                                     little, !is_unsigned);
+#else
+        int one = 1; int little = (int)*(unsigned char *)&one;
+        PyObject *from_bytes, *result = NULL;
+        PyObject *py_bytes = NULL, *arg_tuple = NULL, *kwds = NULL, *order_str = NULL;
+        from_bytes = PyObject_GetAttrString((PyObject*)&PyLong_Type, "from_bytes");
+        if (!from_bytes) return NULL;
+        py_bytes = PyBytes_FromStringAndSize((char*)bytes, sizeof(int));
+        if (!py_bytes) goto limited_bad;
+        order_str = PyUnicode_FromString(little ? "little" : "big");
+        if (!order_str) goto limited_bad;
+        arg_tuple = PyTuple_Pack(2, py_bytes, order_str);
+        if (!arg_tuple) goto limited_bad;
+        if (!is_unsigned) {
+            kwds = PyDict_New();
+            if (!kwds) goto limited_bad;
+            if (PyDict_SetItemString(kwds, "signed", __Pyx_NewRef(Py_True))) goto limited_bad;
+        }
+        result = PyObject_Call(from_bytes, arg_tuple, kwds);
+        limited_bad:
+        Py_XDECREF(kwds);
+        Py_XDECREF(arg_tuple);
+        Py_XDECREF(order_str);
+        Py_XDECREF(py_bytes);
+        Py_XDECREF(from_bytes);
+        return result;
+#endif
+    }
+}
+
+/* CIntToPy */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_UINT(UINT value) {
 #ifdef __Pyx_HAS_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
@@ -8383,7 +8795,7 @@ __Pyx_PyType_GetName(PyTypeObject* tp)
     if (unlikely(name == NULL) || unlikely(!PyUnicode_Check(name))) {
         PyErr_Clear();
         Py_XDECREF(name);
-        name = __Pyx_NewRef(__pyx_n_s__12);
+        name = __Pyx_NewRef(__pyx_n_s__14);
     }
     return name;
 }

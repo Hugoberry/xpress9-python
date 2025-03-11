@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# File Compression with Xpress9 - Step by Step
+# File Compression with Xpress9 - Step by Step - Level 1 Compression
 
 # Step 1: Import the required libraries
 import os
@@ -24,18 +24,17 @@ with open(input_file, 'rb') as f:
 original_size = len(input_data)
 print(f"Original file size: {original_size:,} bytes")
 
-# Step 6: Create a new Xpress9 instance
-print("Initializing Xpress9 compressor")
-xpress = Xpress9()
+# Step 6: Create a new Xpress9 instance with compression level 1 (XPress8)
+print("Initializing XPress compressor with level 1")
+xpress = Xpress9(compression_level=6)  # This will use XPress8 engine with lowest compression level
 
 # Step 7: Allocate buffer for the compressed data
-# In most cases, compression will reduce size, but we need to handle 
-# the worst case where compressed data might be slightly larger
-max_compressed_size = original_size + 8  # Adding some overhead for safety
+# XPress8 may have different compression characteristics than XPress9
+max_compressed_size = original_size + 278  # Adding overhead for safety
 print(f"Allocated buffer size for compression: {max_compressed_size:,} bytes")
 
 # Step 8: Compress the data
-print("Compressing data...")
+print("Compressing data with level 1...")
 compressed_data = xpress.compress(input_data, max_compressed_size)
 
 # Step 9: Calculate compression statistics
@@ -46,6 +45,7 @@ space_saved_percentage = (1 - (compressed_size / original_size)) * 100 if origin
 print(f"Compressed size: {compressed_size:,} bytes")
 print(f"Compression ratio: {compression_ratio:.2f}x")
 print(f"Space saved: {space_saved_percentage:.2f}%")
+print(f"Using compression level: {xpress.compression_level} (XPress8)")
 
 # Step 10: Write the compressed data to the output file
 print(f"Writing compressed data to: {output_file}")
