@@ -48,7 +48,7 @@ jobs:
       # Use cibuildwheel for Linux to generate manylinux wheels
       - name: Build manylinux wheels for Linux
         if: matrix.os == 'ubuntu-latest'
-        uses: pypa/cibuildwheel@v2.16.2
+        uses: pypa/cibuildwheel@v2.23.2
         env:
           CIBW_BUILD: cp${{ matrix.python-version == '3.10' && '310' || matrix.python-version == '3.11' && '311' || matrix.python-version == '3.12' && '312' || matrix.python-version == '3.13' && '313' || matrix.python-version == '3.8' && '38' || '39' }}-*
           CIBW_ARCHS: auto
