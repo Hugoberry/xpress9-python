@@ -2,7 +2,6 @@ name: Test ARM64 Build (Linux only)
 
 on:
   workflow_dispatch
-
 jobs:
   build_test_arm64:
     name: Build and test ARM64 wheel on Linux
@@ -37,6 +36,7 @@ jobs:
           CIBW_BUILD: cp${{ matrix.python-version == '3.10' && '310' || matrix.python-version == '3.11' && '311' || '312' }}-*
           CIBW_ARCHS_LINUX: "aarch64"
           CIBW_BUILD_VERBOSITY: 1
+          CIBW_SKIP: "*-musllinux_*"  # Skip musllinux, only build manylinux
 
       # Store the built wheels
       - name: Store built ARM64 wheels
@@ -85,7 +85,7 @@ jobs:
             python:${{ matrix.python-version }}-slim \
             bash -c "
               pip install --upgrade pip && \
-              pip install dist/*.whl && \
+              pip install dist/*manylinux*.whl && \
               python -c 'import xpress9; print(\"xpress9 imported successfully\")' && \
               if [ -f e2e_test.py ]; then python e2e_test.py; fi
             "
