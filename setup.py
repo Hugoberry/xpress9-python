@@ -59,7 +59,7 @@ xpress9_module = Extension(
 # Setup
 setup(
     name="xpress9",
-    version="0.3.7",
+    version="0.3.8",
     description="Python bindings for the Xpress9 compression library",
     long_description=long_description,
     long_description_content_type="text/markdown",
